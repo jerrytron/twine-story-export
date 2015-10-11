@@ -899,7 +899,7 @@ class CDAMGenFiles:
 		return True
 
 	def WriteToFile(self, path, data):
-		#path = path + ".txt"
+		#path = path + ".html"
 		try:
 			file = open(path, 'w')
 		except IOError:

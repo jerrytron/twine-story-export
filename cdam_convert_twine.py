@@ -147,7 +147,7 @@ def main():
 		if args.author != "Anonymous":
 			STORY_AUTHOR = args.author
 
-		bookPath = STORY_TITLE.lower().replace(" ", "_") + "_LINEAR.txt"
+		bookPath = STORY_TITLE.lower().replace(" ", "_") + "_LINEAR.html"
 		bookPath = os.path.join(args.output, bookPath)
 		goto = " (go to "
 
@@ -158,38 +158,27 @@ def main():
 		del PASSAGES['0']
 		m = STORY_MAP['0']
 		del STORY_MAP['0']
-		book += "[0] " + p['pt']
+		book += "<p class='paragraph'><span class='number'>" +"[0] </span>" + p['pt'] + "</p>"
 		# Add a delimeter so we know it is done
-		book += "\n---"
+		#book += "\n---"
 		for index in range(0, len(p['cs'])):
-			book += ("\n- " + p['cs'][index] + goto + m[index] + ")")
+			book += ("\n- " + p['cs'][index] + "<span class='goto'>"+  goto + m[index] + ")</span>")
 
 		for index in range(1, len(PASSAGES) + 1):
 			key = str(index)
 			book += "\n\n\n"
 			p = PASSAGES[key]
 			m = STORY_MAP[key]
-			book += "[" + key + "] " + p['pt']
+			book += "<p class='paragraph'><span class='number'>" +" [" + key + "] " + "</span>" + p['pt'] + "</p>"
 			# Add a delimeter so we know it is done
-			book += "\n---"
-
+			#book += "\n---"
+			
+			book += "\n";
 			if p['en'] == True:
-				if p['eq'] == 1:
-					book += "\n* - THE END"#* Oh no! Better luck next adventure. * - THE END"
-				elif p['eq'] == 2:
-					book += "\n** - THE END"#** I'm sure you can do better. ** - THE END"
-				elif p['eq'] == 3:
-					book += "\n*** - THE END"#*** You win some, you lose some. *** - THE END"
-				elif p['eq'] == 4:
-					book += "\n**** - THE END"#**** Not too bad! **** - THE END"
-				elif p['eq'] == 5:
-					book += "\n***** - THE END"#***** Congratulations! You sure know your stuff. ***** - THE END"
+				book += "--- THE END ---"
 			else:
-				if len(p['cs']) == 1:
-					book += ("\n- " + p['cs'][0] + goto + m[0] + ")")
-				else:
-					for index in range(0, len(p['cs'])):
-						book += ("\n- " + p['cs'][index] + goto + m[index] + ")")
+				for index in range(0, len(p['cs'])):
+					book += ("- " + p['cs'][index] + "<span class='goto'>"+goto + m[index] + ")</span><br>")
 
 		if os.path.exists(bookPath):
 			os.remove(bookPath)
@@ -565,6 +554,7 @@ def ParseForChoices(text):
 
 	# Cleanse choices of carriage returns.
 	text = text.replace('\r', '')
+	
 
 	choices = []
 	# Search for either [[Choice Text|Choice Key]] or [[Choice Key]] and warn about missing text.
@@ -604,6 +594,7 @@ def ParseForBody(text):
 
 	# Cleanse of carriage returns (but leave newlines!).
 	body = body.replace('\r', '')
+	body = body.replace('\n\n', '<br>\n')
 	return body
 
 def ValidateChoices(tiddlers, nodes):
