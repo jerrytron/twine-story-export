@@ -15,10 +15,3 @@ Save it as a .txt file. This is the source file you feed the script.
 If you include --contact, that is text that will print out at the END of the story. Title and author print out at the beginning.
 
 Output is the path you want to create the file, above it just creates it where you execute the script. Source is simply the path to the src file Twine generates. Remember, you don't run this on the Twine file directly!
-
-If you get the following error:
-KeyError: '0'
-
-Open the source file you exported. Cut the entire first passage, then paste it after what was the second passage. Not sure why this seems to fix this...haven't had time to look deeper.
-
-I think it might be if you have the 'Start' passage is Twine at the top left. Have a StoryTitle and StoryAuthor passage unconnected to anything else as the first passages, top left. Might help. :P
