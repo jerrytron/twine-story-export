@@ -1,0 +1,58 @@
+﻿:: StoryTitle
+Randomization Test
+
+
+:: StoryAuthor
+Jerrytron
+
+
+:: Start
+This is the first passage.
+
+[[First choice.|1A]]
+[[Second choice.|1B]]
+
+
+
+:: 1A
+First choice passage. What do you think?
+
+[[Next thing.|2A]]
+
+
+:: 1B
+Second choice passage. [[This is a link test|2B]]. How are you?
+
+[[Let's go!|2C]]
+
+
+:: 2A
+Should come right after the second passage.
+
+[[Ugh.|3A]]
+
+
+:: 2B
+Glob.
+
+
+:: 2C
+Glorb.
+
+
+:: 3A
+One more time?
+
+[[Moving on!|4A]]
+[[And on!|4B]]
+
+
+
+:: 4A
+End?
+
+
+:: 4B
+End!
+
+

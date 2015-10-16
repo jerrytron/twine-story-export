@@ -1,0 +1,56 @@
+Title: Test One
+Subtitle: NONE
+Author: Linear Convertor
+Credits: 
+Contact: @j3rrytron
+Language: eng
+Version: 1.0.0
+
+
+[0] This is the first passage.
+---
+- First choice. (go to 1)
+- Second choice. (go to 2)[0] This is the first passage.
+---
+- First choice. (go to 1)
+- Second choice. (go to 2)
+
+
+[8] End?
+---
+*** - THE END
+
+
+[1] First choice passage. What do you think?
+---
+- Next thing. (go to 3)
+
+
+[3] Should come right after the second passage.
+---
+- Ugh. (go to 6)
+
+
+[6] One more time?
+---
+- Moving on! (go to 8)
+- And on! (go to 7)
+
+
+[3] Should come right after the second passage.
+---
+- Ugh. (go to 6)
+
+
+[6] One more time?
+---
+- Moving on! (go to 8)
+- And on! (go to 7)
+
+
+[0] This is the first passage.
+---
+- First choice. (go to 1)
+- Second choice. (go to 2)
+
+
