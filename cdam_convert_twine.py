@@ -170,28 +170,32 @@ def main():
 		index = 0
 
 		while len(allKeys) > 0:
-			print allKeys
-			print index
 			index += 1
 			if "ck" in p and len(p["ck"]) == 1 and p["ck"][0] in allKeys:
 				p = PASSAGES[p["ck"][0]]
 				key = p["key"]
 				# Map from old to new index.
 				newMap[key] = str(index)
-				print key
 				if key in allKeys:
 					allKeys.remove(key)
 				psgList.append(p)
 			else:
 				key = random.choice(allKeys)
+				# If this passage has a single entrance, that passage should be
+				# put in first.
+				while len(PASSAGES[key]["ik"]) == 1:
+					# Keep tracing back until we find the first passage in a series
+					# of single paths, or until we hit a passage already used.
+					if PASSAGES[key]["ik"][0] in allKeys:
+						key = PASSAGES[key]["ik"][0]
+					else:
+						break
 				if key in allKeys:
 					allKeys.remove(key)
 				p = PASSAGES[key]
-				key = p["key"]
 				newMap[key] = str(index)
 				psgList.append(p)
 
-		print newMap
 		index = 0
 		for psg in psgList:
 			book += linearPassageText(psg, newMap)
@@ -199,9 +203,6 @@ def main():
 			if index < len(psgList):
 				book += "\n\n\n"
 
-		#PP.pprint(PASSAGES)
-		#print "\n"
-		#PP.pprint(STORY_MAP)
 		if os.path.exists(bookPath):
 			os.remove(bookPath)
 		genFile.WriteToFile(bookPath, book)
