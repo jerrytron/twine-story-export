@@ -157,35 +157,49 @@ def main():
 		book = "Title: " + STORY_TITLE + "\nSubtitle: " + STORY_SUBTITLE + "\nAuthor: " + STORY_AUTHOR
 		book += "\nCredits: " + STORY_CREDITS + "\nContact: " + STORY_CONTACT + "\nLanguage: " + STORY_LANGUAGE + "\nVersion: " + STORY_VERSION + "\n\n\n"
 
-		ordering = []
+		psgList = []
+		newMap = {}
+		allKeys = PASSAGES.keys()
 
 		key = "0"
 		p = PASSAGES[key]
-		book += linearPassageText(PASSAGES, STORY_MAP, key)
+		psgList.append(p)
+		allKeys.remove(key)
+		newMap[key] = key
+		#book += linearPassageText(PASSAGES, STORY_MAP, key)
 
 		index = 1
 
-		while index < len(PASSAGES):
-			print key
+		while len(allKeys) > 0:
+			print allKeys
 			if "ck" in p and len(p["ck"]) == 1:
+
 				p = PASSAGES[p["ck"][0]]
 				#del PASSAGES[key]
 				key = p["key"]
-				book += linearPassageText(PASSAGES, STORY_MAP, key)
+				# Map from old to new index.
+				newMap[key] = str(index)
+				psgList.append(p)
+				#book += linearPassageText(PASSAGES, STORY_MAP, key)
 				#del PASSAGES[p["key"]]
 			else:
 				#del PASSAGES[key]
-				key = random.choice(list(PASSAGES.keys()))
+				key = random.choice(allKeys)
+				allKeys.remove(key)
 				p = PASSAGES[key]
 				key = p["key"]
-				book += linearPassageText(PASSAGES, STORY_MAP, key)
-			if len(PASSAGES) != 0:
-				book += "\n\n\n"
+				newMap[key] = str(index)
+				psgList.append(p)
+				#book += linearPassageText(PASSAGES, STORY_MAP, key)
+			#if len(allKeys) != 0:
+			#	book += "\n\n\n"
 			index += 1
 
+		print newMap
 		#for index in range(1, len(PASSAGES) + 1):
-		#	p = PASSAGES[str(index)]
-		#	book += linearPassageText(PASSAGES, STORY_MAP, p["key"])
+		for psg in psgList:
+			book += linearPassageText(psg, newMap)
+			book += "\n\n\n"
 
 		#PP.pprint(PASSAGES)
 		#print "\n"
@@ -210,7 +224,34 @@ def main():
 	#print STORY_MAP
 	#print PASSAGES
 
-def linearPassageText(aPassages, aStoryMap, aKey):
+def linearPassageText(aPassage, aMap):
+	psgText = ""
+	goto = " (go to "
+	key = aMap[aPassage["key"]]
+	psgText += "[" + key + "] " + aPassage['pt']
+	# Add a delimeter so we know it is done
+	psgText += "\n---"
+
+	if aPassage['en'] == True:
+		if aPassage['eq'] == 1:
+			psgText += "\n* - THE END"#* Oh no! Better luck next adventure. * - THE END"
+		elif aPassage['eq'] == 2:
+			psgText += "\n** - THE END"#** I'm sure you can do better. ** - THE END"
+		elif aPassage['eq'] == 3:
+			psgText += "\n*** - THE END"#*** You win some, you lose some. *** - THE END"
+		elif aPassage['eq'] == 4:
+			psgText += "\n**** - THE END"#**** Not too bad! **** - THE END"
+		elif aPassage['eq'] == 5:
+			psgText += "\n***** - THE END"#***** Congratulations! You sure know your stuff. ***** - THE END"
+	else:
+		if len(aPassage['cs']) == 1:
+			psgText += ("\n- " + aPassage['cs'][0] + goto + aMap[aPassage["ck"][0]] + ")")
+		else:
+			for index in range(0, len(aPassage['cs'])):
+				psgText += ("\n- " + aPassage['cs'][index] + goto + aMap[aPassage["ck"][index]] + ")")
+	return psgText
+
+def linearPassageTextTwo(aPassages, aStoryMap, aKey):
 	psgText = ""
 	goto = " (go to "
 	p = aPassages[aKey]

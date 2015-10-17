@@ -9,48 +9,66 @@ Version: 1.0.0
 
 [0] This is the first passage.
 ---
-- First choice. (go to 1)
-- Second choice. (go to 2)[0] This is the first passage.
----
-- First choice. (go to 1)
-- Second choice. (go to 2)
+- First choice. (go to 4)
+- Second choice. (go to 7)
 
 
-[8] End?
+[1] End?
 ---
 *** - THE END
 
 
-[1] First choice passage. What do you think?
+[2] Glob.
 ---
-- Next thing. (go to 3)
+*** - THE END
 
 
-[3] Should come right after the second passage.
+[3] Glorb.
 ---
-- Ugh. (go to 6)
+*** - THE END
 
 
-[6] One more time?
+[4] First choice passage. What do you think?
 ---
-- Moving on! (go to 8)
-- And on! (go to 7)
+- Next thing. (go to 8)
 
 
-[3] Should come right after the second passage.
+[8] Should come right after the second passage.
 ---
-- Ugh. (go to 6)
+- Ugh. (go to 10)
 
 
-[6] One more time?
+[10] One more time?
 ---
-- Moving on! (go to 8)
-- And on! (go to 7)
+- Moving on! (go to 1)
+- And on! (go to 11)
 
 
-[0] This is the first passage.
+[7] Second choice passage.. How are you?
 ---
-- First choice. (go to 1)
-- Second choice. (go to 2)
+- This is a link test (go to 2)
+- Let's go! (go to 3)
+
+
+[8] Should come right after the second passage.
+---
+- Ugh. (go to 10)
+
+
+[10] One more time?
+---
+- Moving on! (go to 1)
+- And on! (go to 11)
+
+
+[10] One more time?
+---
+- Moving on! (go to 1)
+- And on! (go to 11)
+
+
+[11] End!
+---
+*** - THE END
 
 
