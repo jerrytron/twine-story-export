@@ -4,6 +4,8 @@ import os
 import re
 import sys
 import struct
+import pprint
+import random
 import argparse
 import tiddlywiki as tiddly
 import cdam_gen_files as gen
@@ -30,6 +32,8 @@ OPERATION_TEST = bytearray()
 TOTAL_OPS = 0
 VERBOSE = False
 LINEAR = False
+
+PP = pprint.PrettyPrinter(indent = 4)
 
 kAppend = "<append>"
 kContinue = "<continue>"
@@ -149,36 +153,55 @@ def main():
 
 		bookPath = STORY_TITLE.lower().replace(" ", "_") + "_LINEAR.html"
 		bookPath = os.path.join(args.output, bookPath)
-		goto = " (go to "
 
 		book = "Title: " + STORY_TITLE + "\nSubtitle: " + STORY_SUBTITLE + "\nAuthor: " + STORY_AUTHOR
 		book += "\nCredits: " + STORY_CREDITS + "\nContact: " + STORY_CONTACT + "\nLanguage: " + STORY_LANGUAGE + "\nVersion: " + STORY_VERSION + "\n\n\n"
 
-		p = PASSAGES['0']
-		del PASSAGES['0']
-		m = STORY_MAP['0']
-		del STORY_MAP['0']
-		book += "<p class='paragraph'><span class='number'>" +"[0] </span>" + p['pt'] + "</p>"
-		# Add a delimeter so we know it is done
-		#book += "\n---"
-		for index in range(0, len(p['cs'])):
-			book += ("\n- " + p['cs'][index] + "<span class='goto'>"+  goto + m[index] + ")</span>")
+		psgList = []
+		newMap = {}
+		allKeys = PASSAGES.keys()
 
-		for index in range(1, len(PASSAGES) + 1):
-			key = str(index)
-			book += "\n\n\n"
-			p = PASSAGES[key]
-			m = STORY_MAP[key]
-			book += "<p class='paragraph'><span class='number'>" +" [" + key + "] " + "</span>" + p['pt'] + "</p>"
-			# Add a delimeter so we know it is done
-			#book += "\n---"
-			
-			book += "\n";
-			if p['en'] == True:
-				book += "--- THE END ---"
+		key = "0"
+		p = PASSAGES[key]
+		psgList.append(p)
+		allKeys.remove(key)
+		newMap[key] = key
+
+		index = 0
+
+		while len(allKeys) > 0:
+			index += 1
+			if "ck" in p and len(p["ck"]) == 1 and p["ck"][0] in allKeys:
+				p = PASSAGES[p["ck"][0]]
+				key = p["key"]
+				# Map from old to new index.
+				newMap[key] = str(index)
+				if key in allKeys:
+					allKeys.remove(key)
+				psgList.append(p)
 			else:
-				for index in range(0, len(p['cs'])):
-					book += ("- " + p['cs'][index] + "<span class='goto'>"+goto + m[index] + ")</span><br>")
+				key = random.choice(allKeys)
+				# If this passage has a single entrance, that passage should be
+				# put in first.
+				while len(PASSAGES[key]["ik"]) == 1:
+					# Keep tracing back until we find the first passage in a series
+					# of single paths, or until we hit a passage already used.
+					if PASSAGES[key]["ik"][0] in allKeys:
+						key = PASSAGES[key]["ik"][0]
+					else:
+						break
+				if key in allKeys:
+					allKeys.remove(key)
+				p = PASSAGES[key]
+				newMap[key] = str(index)
+				psgList.append(p)
+
+		index = 0
+		for psg in psgList:
+			book += linearPassageText(psg, newMap)
+			index += 1
+			if index < len(psgList):
+				book += "\n\n\n"
 
 		if os.path.exists(bookPath):
 			os.remove(bookPath)
@@ -199,6 +222,61 @@ def main():
 	print "Complete!"
 	#print STORY_MAP
 	#print PASSAGES
+
+def linearPassageText(aPassage, aMap):
+	psgText = ""
+	goto = " (go to "
+	key = aMap[aPassage["key"]]
+	psgText += "<p class='paragraph'><span class='number'>" + "[" + key + "] </span>" + aPassage['pt'] + "</p>"
+	# Add a delimeter so we know it is done
+	#psgText += "\n---"
+	psgText += "\n"
+
+	if aPassage['en'] == True:
+		psgText += "--- THE END ---"
+
+		#if aPassage['eq'] == 1:
+		#	psgText += "\n* - THE END"#* Oh no! Better luck next adventure. * - THE END"
+		#elif aPassage['eq'] == 2:
+		#	psgText += "\n** - THE END"#** I'm sure you can do better. ** - THE END"
+		#elif aPassage['eq'] == 3:
+		#	psgText += "\n*** - THE END"#*** You win some, you lose some. *** - THE END"
+		#elif aPassage['eq'] == 4:
+		#	psgText += "\n**** - THE END"#**** Not too bad! **** - THE END"
+		#elif aPassage['eq'] == 5:
+		#	psgText += "\n***** - THE END"#***** Congratulations! You sure know your stuff. ***** - THE END"
+	else:
+		for index in range(0, len(aPassage['cs'])):
+			psgText += ("- " + aPassage['cs'][index] + "<span class='goto'>" + goto + aMap[aPassage["ck"][index]] + ")</span><br>")
+	return psgText
+
+def linearPassageTextFull(aPassages, aStoryMap, aKey):
+	psgText = ""
+	goto = " (go to "
+	p = aPassages[aKey]
+	m = aStoryMap[aKey]
+	psgText += "[" + aKey + "] " + p['pt']
+	# Add a delimeter so we know it is done
+	psgText += "\n---"
+
+	if p['en'] == True:
+		if p['eq'] == 1:
+			psgText += "\n* - THE END"#* Oh no! Better luck next adventure. * - THE END"
+		elif p['eq'] == 2:
+			psgText += "\n** - THE END"#** I'm sure you can do better. ** - THE END"
+		elif p['eq'] == 3:
+			psgText += "\n*** - THE END"#*** You win some, you lose some. *** - THE END"
+		elif p['eq'] == 4:
+			psgText += "\n**** - THE END"#**** Not too bad! **** - THE END"
+		elif p['eq'] == 5:
+			psgText += "\n***** - THE END"#***** Congratulations! You sure know your stuff. ***** - THE END"
+	else:
+		if len(p['cs']) == 1:
+			psgText += ("\n- " + p['cs'][0] + goto + m[0] + ")")
+		else:
+			for index in range(0, len(p['cs'])):
+				psgText += ("\n- " + p['cs'][index] + goto + m[index] + ")")
+	return psgText
 
 def twineBuild(storySource, path, storyDir, title, author):
 	STORY_MAP.clear()
@@ -262,6 +340,7 @@ def BuildCDAMStory(wiki):
 		passage = ParseForAttributes(wiki.tiddlers[key].tags)
 		if passage == False:
 			continue
+		# Is this the starting passage?
 		if key.upper() == "START":
 			if "ps" not in passage:
 				passage["ps"] = 0
@@ -288,6 +367,7 @@ def BuildCDAMStory(wiki):
 			passage["pp"] = 0
 		rss = wiki.tiddlers[key].toRss()
 		choicePairs = ParseForChoices(rss.description)
+		#PP.pprint(choicePairs)
 		passage["pt"] = ParseForBody(rss.description)
 
 		if type(choicePairs) is bool:
@@ -312,7 +392,6 @@ def BuildCDAMStory(wiki):
 				for node in item:
 					nodes.append(node)
 					choices.append(item[node])
-
 			if ValidateChoices(wiki.tiddlers, nodes) == False:
 				print "[ERROR] Failed to validate choices for node."
 				return False
@@ -320,6 +399,7 @@ def BuildCDAMStory(wiki):
 				STORY_MAP[key.upper()] = nodes
 			passage["en"] = False
 			passage["cs"] = choices
+			passage["ck"] = nodes
 		#print "Validating passage for node " + key
 		if ValidatePassage(passage) == False:
 			print "[ERROR] Failed to validate passage."
@@ -554,7 +634,6 @@ def ParseForChoices(text):
 
 	# Cleanse choices of carriage returns.
 	text = text.replace('\r', '')
-	
 
 	choices = []
 	# Search for either [[Choice Text|Choice Key]] or [[Choice Key]] and warn about missing text.
@@ -649,6 +728,16 @@ def SimplifyNaming():
 				i += 1
 		STORY_MAP[TITLE_MAP[titleKey]] = newMap[titleKey]
 		PASSAGES[TITLE_MAP[titleKey]] = newPassages[titleKey]
+		PASSAGES[TITLE_MAP[titleKey]]['key'] = TITLE_MAP[titleKey]
+
+	# Create array for all incoming links on a passage.
+	for key in PASSAGES:
+		psg = PASSAGES[key]
+		if "ck" in psg and len(psg["ck"]) > 0:
+			for key in psg["ck"]:
+				if "ik" not in PASSAGES[key]:
+					PASSAGES[key]["ik"] = []
+				PASSAGES[key]["ik"].append(psg["key"])
 
 if __name__ == '__main__':
 	#global _UPDATE
