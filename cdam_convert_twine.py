@@ -166,40 +166,38 @@ def main():
 		psgList.append(p)
 		allKeys.remove(key)
 		newMap[key] = key
-		#book += linearPassageText(PASSAGES, STORY_MAP, key)
 
-		index = 1
+		index = 0
 
 		while len(allKeys) > 0:
 			print allKeys
-			if "ck" in p and len(p["ck"]) == 1:
-
+			print index
+			index += 1
+			if "ck" in p and len(p["ck"]) == 1 and p["ck"][0] in allKeys:
 				p = PASSAGES[p["ck"][0]]
-				#del PASSAGES[key]
 				key = p["key"]
 				# Map from old to new index.
 				newMap[key] = str(index)
+				print key
+				if key in allKeys:
+					allKeys.remove(key)
 				psgList.append(p)
-				#book += linearPassageText(PASSAGES, STORY_MAP, key)
-				#del PASSAGES[p["key"]]
 			else:
-				#del PASSAGES[key]
 				key = random.choice(allKeys)
-				allKeys.remove(key)
+				if key in allKeys:
+					allKeys.remove(key)
 				p = PASSAGES[key]
 				key = p["key"]
 				newMap[key] = str(index)
 				psgList.append(p)
-				#book += linearPassageText(PASSAGES, STORY_MAP, key)
-			#if len(allKeys) != 0:
-			#	book += "\n\n\n"
-			index += 1
 
 		print newMap
-		#for index in range(1, len(PASSAGES) + 1):
+		index = 0
 		for psg in psgList:
 			book += linearPassageText(psg, newMap)
-			book += "\n\n\n"
+			index += 1
+			if index < len(psgList):
+				book += "\n\n\n"
 
 		#PP.pprint(PASSAGES)
 		#print "\n"
@@ -251,7 +249,7 @@ def linearPassageText(aPassage, aMap):
 				psgText += ("\n- " + aPassage['cs'][index] + goto + aMap[aPassage["ck"][index]] + ")")
 	return psgText
 
-def linearPassageTextTwo(aPassages, aStoryMap, aKey):
+def linearPassageTextFull(aPassages, aStoryMap, aKey):
 	psgText = ""
 	goto = " (go to "
 	p = aPassages[aKey]
@@ -729,6 +727,15 @@ def SimplifyNaming():
 		STORY_MAP[TITLE_MAP[titleKey]] = newMap[titleKey]
 		PASSAGES[TITLE_MAP[titleKey]] = newPassages[titleKey]
 		PASSAGES[TITLE_MAP[titleKey]]['key'] = TITLE_MAP[titleKey]
+
+	# Create array for all incoming links on a passage.
+	for key in PASSAGES:
+		psg = PASSAGES[key]
+		if "ck" in psg and len(psg["ck"]) > 0:
+			for key in psg["ck"]:
+				if "ik" not in PASSAGES[key]:
+					PASSAGES[key]["ik"] = []
+				PASSAGES[key]["ik"].append(psg["key"])
 
 if __name__ == '__main__':
 	#global _UPDATE
