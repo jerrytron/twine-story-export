@@ -183,7 +183,7 @@ def main():
 				key = random.choice(allKeys)
 				# If this passage has a single entrance, that passage should be
 				# put in first.
-				if "ik" in PASSAGES[key]["ik"]:
+				if "ik" in PASSAGES[key]:
 					while len(PASSAGES[key]["ik"]) == 1:
 						# Keep tracing back until we find the first passage in a series
 						# of single paths, or until we hit a passage already used.
