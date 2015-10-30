@@ -183,13 +183,14 @@ def main():
 				key = random.choice(allKeys)
 				# If this passage has a single entrance, that passage should be
 				# put in first.
-				while len(PASSAGES[key]["ik"]) == 1:
-					# Keep tracing back until we find the first passage in a series
-					# of single paths, or until we hit a passage already used.
-					if PASSAGES[key]["ik"][0] in allKeys:
-						key = PASSAGES[key]["ik"][0]
-					else:
-						break
+				if "ik" in PASSAGES[key]:
+					while len(PASSAGES[key]["ik"]) == 1:
+						# Keep tracing back until we find the first passage in a series
+						# of single paths, or until we hit a passage already used.
+						if PASSAGES[key]["ik"][0] in allKeys:
+							key = PASSAGES[key]["ik"][0]
+						else:
+							break
 				if key in allKeys:
 					allKeys.remove(key)
 				p = PASSAGES[key]
@@ -735,7 +736,7 @@ def SimplifyNaming():
 		if "ck" in psg and len(psg["ck"]) > 0:
 			for key in psg["ck"]:
 				if "ik" not in PASSAGES[key]:
-					PASSAGES[key]["ik"] = []
+					PASSAGES[key]["ik"] = [""]
 				PASSAGES[key]["ik"].append(psg["key"])
 
 if __name__ == '__main__':
