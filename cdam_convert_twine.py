@@ -737,7 +737,7 @@ def SimplifyNaming():
 		if "ck" in psg and len(psg["ck"]) > 0:
 			for key in psg["ck"]:
 				if "ik" not in PASSAGES[key]:
-					PASSAGES[key]["ik"] = []
+					PASSAGES[key]["ik"] = [""]
 				PASSAGES[key]["ik"].append(psg["key"])
 
 if __name__ == '__main__':
