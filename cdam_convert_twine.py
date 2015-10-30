@@ -183,9 +183,6 @@ def main():
 				key = random.choice(allKeys)
 				# If this passage has a single entrance, that passage should be
 				# put in first.
-				print "---------"
-				print PASSAGES[key]
-				print "///////////"
 				if "ik" in PASSAGES[key]:
 					while len(PASSAGES[key]["ik"]) == 1:
 						# Keep tracing back until we find the first passage in a series
