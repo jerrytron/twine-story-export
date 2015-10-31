@@ -38,6 +38,7 @@ PP = pprint.PrettyPrinter(indent = 4)
 kAppend = "<append>"
 kContinue = "<continue>"
 kContinueCopy = u'Continue...'
+kGotoTempTag = "-GOTO-"
 
 class CDAMParser(argparse.ArgumentParser):
 	def error(self, message):
@@ -171,8 +172,8 @@ def main():
 
 		while len(allKeys) > 0:
 			index += 1
-			if "ck" in p and len(p["ck"]) == 1 and p["ck"][0] in allKeys:
-				p = PASSAGES[p["ck"][0]]
+			if "choices" in p and len(p["choices"]) == 1 and p["choices"][0]["link"] in allKeys:
+				p = PASSAGES[p["choices"][0]["link"]]
 				key = p["key"]
 				# Map from old to new index.
 				newMap[key] = str(index)
@@ -247,9 +248,16 @@ def linearPassageText(aPassage, aMap):
 		#elif aPassage['eq'] == 5:
 		#	psgText += "\n***** - THE END"#***** Congratulations! You sure know your stuff. ***** - THE END"
 	else:
-		#for index in range(0, len(aPassage['cs'])):
 		for choice in aPassage['choices']:
-			psgText += ("- " + choice['text'] + "<span class='goto'>" + goto + aMap[choice['link']] + ")</span><br>")
+			m = re.search(kGotoTempTag, psgText)
+
+			choiceText = ""
+			if psgText[m.start() - 1] == '\n':
+				choiceText += ("- " + choice['text'] + "<span class='goto'>" + goto + aMap[choice['link']] + ")</span><br>")
+			else:
+				choiceText += ("<span class='choice-title'>" + choice['text'] + "</span>" + "<span class='goto'>" + goto + aMap[choice['link']] + ")</span><br>")
+
+			psgText = re.sub(kGotoTempTag, choiceText, psgText, 1);
 	return psgText
 
 def linearPassageTextFull(aPassages, aStoryMap, aKey):
@@ -673,7 +681,7 @@ def ParseForChoices(bodyText):
 		choice['link'] = link
 		choice['text'] = text
 		choices.append(choice)
-		bodyText = re.sub(r"\[\[([^\[\]|]+)(?:\|([\w\d\s]+))?\]\]", "(GOTO)", bodyText, 1)
+		bodyText = re.sub(r"\[\[([^\[\]|]+)(?:\|([\w\d\s]+))?\]\]", kGotoTempTag, bodyText, 1)
 
 	if len(choices) == 0:
 		return True
@@ -686,7 +694,7 @@ def ParseForBody(text):
 	body = body.replace('\r', '\n')
 	body = body.replace('\n\n', '<br>\n')
 
-	body = re.sub(r"\[\[([^\[\]|]+)(?:\|([\w\d\s]+))?\]\]", "(GOTO)", text)
+	body = re.sub(r"\[\[([^\[\]|]+)(?:\|([\w\d\s]+))?\]\]", kGotoTempTag, text)
 
 	return body
 
