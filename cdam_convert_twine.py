@@ -759,7 +759,6 @@ def SimplifyNaming():
 			for choice in psg["choices"]:
 				choice["link"] = TITLE_MAP[choice["link"].upper()]
 				psgKey = choice["link"]
-				PP.pprint(psg)
 				if "ik" not in PASSAGES[psgKey]:
 					PASSAGES[psgKey]["ik"] = [""]
 				PASSAGES[psgKey]["ik"].append(psg["key"])
