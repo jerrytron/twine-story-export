@@ -247,8 +247,9 @@ def linearPassageText(aPassage, aMap):
 		#elif aPassage['eq'] == 5:
 		#	psgText += "\n***** - THE END"#***** Congratulations! You sure know your stuff. ***** - THE END"
 	else:
-		for index in range(0, len(aPassage['cs'])):
-			psgText += ("- " + aPassage['cs'][index] + "<span class='goto'>" + goto + aMap[aPassage["ck"][index]] + ")</span><br>")
+		#for index in range(0, len(aPassage['cs'])):
+		for choice in aPassage['choices']:
+			psgText += ("- " + choice['text'] + "<span class='goto'>" + goto + aMap[choice['link']] + ")</span><br>")
 	return psgText
 
 def linearPassageTextFull(aPassages, aStoryMap, aKey):
@@ -390,17 +391,17 @@ def BuildCDAMStory(wiki):
 			nodes = []
 			choices = []
 			for item in choicePairs:
-				for node in item:
-					nodes.append(node)
-					choices.append(item[node])
+				nodes.append(item['link'])
+				choices.append(item['text'])
 			if ValidateChoices(wiki.tiddlers, nodes) == False:
 				print "[ERROR] Failed to validate choices for node."
 				return False
 			else:
 				STORY_MAP[key.upper()] = nodes
 			passage["en"] = False
-			passage["cs"] = choices
-			passage["ck"] = nodes
+			#passage["cs"] = choices
+			#passage["ck"] = nodes
+			passage["choices"] = choicePairs
 		#print "Validating passage for node " + key
 		if ValidatePassage(passage) == False:
 			print "[ERROR] Failed to validate passage."
@@ -630,57 +631,68 @@ def ParseForAttributes(tags):
 					attributes["sv"] = pair[1]
 	return attributes
 
-def ParseForChoices(text):
+def ParseForChoices(bodyText):
 	global LINEAR
 
 	# Cleanse choices of carriage returns.
-	text = text.replace('\r', '')
+	bodyText = bodyText.replace('\r', '\n')
+	bodyText = bodyText.replace('\n\n', '<br>\n')
 
 	choices = []
 	# Search for either [[Choice Text|Choice Key]] or [[Choice Key]] and warn about missing text.
-	for m in re.finditer(r"\[\[([^\[\]|]+)(?:\|([\w\d\s]+))?\]\]", text):
+	matchCount = len(re.findall(r"\[\[([^\[\]|]+)(?:\|([\w\d\s]+))?\]\]", bodyText))
+
+	for index in range(0, matchCount):
+		m = re.search(r"\[\[([^\[\]|]+)(?:\|([\w\d\s]+))?\]\]", bodyText)
+	#for m in re.finditer(r"\[\[([^\[\]|]+)(?:\|([\w\d\s]+))?\]\]", text):
 		# For [[Run away.|1B]], m.group(0) is whole match, m.group(1) = 'Run away.', and m.group(2) = '1B'
 		# For [[Run away.]], same but there is no m.group(2)
-		if m:
-			choice = {}
-			text = m.group(1)
-			link = m.group(2)
-			# No link means copy text & link text are the same.
-			if not link:
-				link = text
+		choice = {}
+		choice['index'] = m.start()
+		choice['length'] = m.end() - m.start()
+		text = m.group(1)
+		link = m.group(2)
+		# No link means copy text & link text are the same.
+		if not link:
+			link = text
 
-			# Link is meant for auto-jumping.
-			if text.lower() == kAppend:
-				if len(choices) == 0:
-					# If only a choice key, label it for an auto jump to the passage.
-					if LINEAR:
-						text = "Continue..."
-					else:
-						text = "*"
+		# Link is meant for auto-jumping.
+		if text.lower() == kAppend:
+			if len(choices) == 0:
+				# If only a choice key, label it for an auto jump to the passage.
+				if LINEAR:
+					text = "Continue..."
 				else:
-					print "[ERROR] Can only have a single auto-jump choice per passage."
-					return False
-			elif text.lower() == kContinue:
-				text = kContinueCopy
+					text = "*"
+			else:
+				print "[ERROR] Can only have a single auto-jump choice per passage."
+				return False
+		elif text.lower() == kContinue:
+			text = kContinueCopy
 
-			choice[link] = text
-			choices.append(choice)
+		choice['link'] = link
+		choice['text'] = text
+		choices.append(choice)
+		bodyText = re.sub(r"\[\[([^\[\]|]+)(?:\|([\w\d\s]+))?\]\]", "(GOTO)", bodyText, 1)
+
 	if len(choices) == 0:
 		return True
 	return choices
 
 def ParseForBody(text):
-	body = re.sub(r"\s*\[\[([^\[\]|]+)(?:\|([\w\d\s]+))?\]\]\s*", "", text)
-
 	# Cleanse of carriage returns (but leave newlines!).
-	body = body.replace('\r', '')
+	#
+	body = text
+	body = body.replace('\r', '\n')
 	body = body.replace('\n\n', '<br>\n')
+
+	body = re.sub(r"\[\[([^\[\]|]+)(?:\|([\w\d\s]+))?\]\]", "(GOTO)", text)
+
 	return body
 
 def ValidateChoices(tiddlers, nodes):
 	for node in nodes:
 		if node not in tiddlers:
-			print tiddlers
 			print "[ERROR] Choice key found without matching passage: " + node
 			return False
 	return True
@@ -725,6 +737,7 @@ def SimplifyNaming():
 			i = 0
 			for val in newMap[titleKey]:
 				# Links always referenced in uppercase.
+				#print "HERE: " + titlekey + " : " + i
 				newMap[titleKey][i] = TITLE_MAP[val.upper()]
 				i += 1
 		STORY_MAP[TITLE_MAP[titleKey]] = newMap[titleKey]
@@ -734,11 +747,14 @@ def SimplifyNaming():
 	# Create array for all incoming links on a passage.
 	for key in PASSAGES:
 		psg = PASSAGES[key]
-		if "ck" in psg and len(psg["ck"]) > 0:
-			for key in psg["ck"]:
-				if "ik" not in PASSAGES[key]:
-					PASSAGES[key]["ik"] = [""]
-				PASSAGES[key]["ik"].append(psg["key"])
+		if "choices" in psg and len(psg["choices"]) > 0:
+			for choice in psg["choices"]:
+				choice["link"] = TITLE_MAP[choice["link"].upper()]
+				psgKey = choice["link"]
+				PP.pprint(psg)
+				if "ik" not in PASSAGES[psgKey]:
+					PASSAGES[psgKey]["ik"] = [""]
+				PASSAGES[psgKey]["ik"].append(psg["key"])
 
 if __name__ == '__main__':
 	#global _UPDATE
