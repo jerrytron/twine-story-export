@@ -253,9 +253,9 @@ def linearPassageText(aPassage, aMap):
 
 			choiceText = ""
 			if psgText[m.start() - 1] == '\n':
-				choiceText += ("- " + choice['text'] + "<span class='goto'>" + goto + aMap[choice['link']] + ")</span><br>")
+				choiceText += ("<span class='choice-title choice-standalone'>" + choice['text'] + "</span>" + "<span class='goto'>" + goto + aMap[choice['link']] + ")</span>")
 			else:
-				choiceText += ("<span class='choice-title'>" + choice['text'] + "</span>" + "<span class='goto'>" + goto + aMap[choice['link']] + ")</span><br>")
+				choiceText += ("<span class='choice-title'>" + choice['text'] + "</span>" + "<span class='goto'>" + goto + aMap[choice['link']] + ")</span>")
 
 			psgText = re.sub(kGotoTempTag, choiceText, psgText, 1);
 	return psgText
