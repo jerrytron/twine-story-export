@@ -155,7 +155,18 @@ def main():
 		bookPath = STORY_TITLE.lower().replace(" ", "_") + "_LINEAR.html"
 		bookPath = os.path.join(args.output, bookPath)
 
-		book = "Title: " + STORY_TITLE + "\nSubtitle: " + STORY_SUBTITLE + "\nAuthor: " + STORY_AUTHOR
+		book = ""
+
+		# Look for an HTML header to insert.
+		sourcePath = os.path.dirname(args.source)
+		headerPath = os.path.join(sourcePath, "header.txt")
+		try:
+			file = open(headerPath, 'r')
+			book += file.read()
+		except IOError:
+			print "[WARNING] No HTML header found at: " + headerPath
+
+		book += "Title: " + STORY_TITLE + "\nSubtitle: " + STORY_SUBTITLE + "\nAuthor: " + STORY_AUTHOR
 		book += "\nCredits: " + STORY_CREDITS + "\nContact: " + STORY_CONTACT + "\nLanguage: " + STORY_LANGUAGE + "\nVersion: " + STORY_VERSION + "\n\n\n"
 
 		psgList = []
@@ -204,6 +215,19 @@ def main():
 			index += 1
 			if index < len(psgList):
 				book += "\n\n\n"
+
+
+		# Look for an HTML header to insert.
+		sourcePath = os.path.dirname(args.source)
+		footerPath = os.path.join(sourcePath, "footer.txt")
+
+		try:
+			file = open(footerPath, 'r')
+			book += file.read()
+			print book
+		except IOError:
+			print "[WARNING] No HTML footer found at: " + footerPath
+
 
 		if os.path.exists(bookPath):
 			os.remove(bookPath)
