@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# encoding=utf8
 
 import os
 import re
@@ -9,6 +10,9 @@ import random
 import argparse
 import tiddlywiki as tiddly
 import cdam_gen_files as gen
+
+reload(sys)
+sys.setdefaultencoding('utf8')
 
 VERSION = "1.0"
 
@@ -723,6 +727,7 @@ def ParseForBody(text):
 	return body
 
 def ValidateChoices(tiddlers, nodes):
+	#print tiddlers
 	for node in nodes:
 		if node not in tiddlers:
 			print "[ERROR] Choice key found without matching passage: " + node
