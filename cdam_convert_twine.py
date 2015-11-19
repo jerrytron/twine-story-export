@@ -228,7 +228,7 @@ def main():
 		try:
 			file = open(footerPath, 'r')
 			book += file.read()
-			print book
+			#print book
 		except IOError:
 			print "[WARNING] No HTML footer found at: " + footerPath
 
