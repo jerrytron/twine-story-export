@@ -8,6 +8,7 @@ import struct
 import pprint
 import random
 import argparse
+import datetime
 import tiddlywiki as tiddly
 import cdam_gen_files as gen
 
@@ -36,6 +37,8 @@ OPERATION_TEST = bytearray()
 TOTAL_OPS = 0
 VERBOSE = False
 LINEAR = False
+HTML = False
+SEED = None
 
 PP = pprint.PrettyPrinter(indent = 4)
 
@@ -63,6 +66,7 @@ def main():
 	global STORY_LANGUAGE
 	global STORY_VERSION
 	global LINEAR
+	global HTML
 
 	# To Make a Linear Story:
 	# python ./cdam_convert_twine.py --title
@@ -80,6 +84,8 @@ def main():
 	parser.add_argument('--output', default='./', action='store', help='The location to create the output files.')
 	parser.add_argument('--json', action='store_true', help='Output as a JSON text file.')
 	parser.add_argument('--linear', action='store_true', help='Output as a linear text file for humans.')
+	parser.add_argument('--html', action='store_true', help='Output as html document.')
+	parser.add_argument('--randseed', default='', action='store', help='Optional seed to control random output.')
 	parser.add_argument('--binary', action='store_true', help='Output as a CDAM binary for the Choosatron v2.')
 	parser.add_argument('--verbose', action='store_true', help='Print additional info, including warnings.')
 	parser.add_argument('--operation', action='store_true', help='Output operations file too for debugging.')
@@ -93,7 +99,18 @@ def main():
 	STORY_LANGUAGE = args.lang
 	STORY_VERSION = args.ver
 
+	if args.randseed:
+		SEED = int(args.randseed)
+		random.seed(SEED)
+	else:
+		SEED = datetime.datetime.now().microsecond
+		#print "Random Seed for " + args.title + ": " + str(SEED)
+		random.seed(SEED)
+
 	LINEAR = args.linear
+	HTML = args.html
+	if HTML:
+		LINEAR = True
 
 	# Uncomment to override output and place wherever source was.
 	#args.output = os.path.dirname(args.source)
@@ -156,22 +173,26 @@ def main():
 		if args.author != "Anonymous":
 			STORY_AUTHOR = args.author
 
-		bookPath = STORY_TITLE.lower().replace(" ", "_") + "_LINEAR.html"
+		if HTML:
+			bookPath = STORY_TITLE.lower().replace(" ", "_") + "_LINEAR.html"
+		else:
+			bookPath = STORY_TITLE.lower().replace(" ", "_") + "_LINEAR.txt"
 		bookPath = os.path.join(args.output, bookPath)
 
 		book = ""
 
-		# Look for an HTML header to insert.
-		sourcePath = os.path.dirname(args.source)
-		headerPath = os.path.join(sourcePath, "header.txt")
-		try:
-			file = open(headerPath, 'r')
-			book += file.read()
-		except IOError:
-			print "[WARNING] No HTML header found at: " + headerPath
+		if HTML:
+			# Look for an HTML header to insert.
+			sourcePath = os.path.dirname(args.source)
+			headerPath = os.path.join(sourcePath, "header.txt")
+			try:
+				file = open(headerPath, 'r')
+				book += file.read()
+			except IOError:
+				print "[WARNING] No HTML header found at: " + headerPath
 
 		book += "Title: " + STORY_TITLE + "\nSubtitle: " + STORY_SUBTITLE + "\nAuthor: " + STORY_AUTHOR
-		book += "\nCredits: " + STORY_CREDITS + "\nContact: " + STORY_CONTACT + "\nLanguage: " + STORY_LANGUAGE + "\nVersion: " + STORY_VERSION + "\n\n\n"
+		book += "\nCredits: " + STORY_CREDITS + "\nContact: " + STORY_CONTACT + "\nLanguage: " + STORY_LANGUAGE + "\nVersion: " + STORY_VERSION + "\nSeed: " + str(SEED) + "\n\n\n"
 
 		psgList = []
 		newMap = {}
@@ -221,16 +242,16 @@ def main():
 				book += "\n\n\n"
 
 
-		# Look for an HTML header to insert.
-		sourcePath = os.path.dirname(args.source)
-		footerPath = os.path.join(sourcePath, "footer.txt")
-
-		try:
-			file = open(footerPath, 'r')
-			book += file.read()
-			#print book
-		except IOError:
-			print "[WARNING] No HTML footer found at: " + footerPath
+		# Look for an HTML footer to insert.
+		if HTML:
+			sourcePath = os.path.dirname(args.source)
+			footerPath = os.path.join(sourcePath, "footer.txt")
+			try:
+				file = open(footerPath, 'r')
+				book += file.read()
+				#print book
+			except IOError:
+				print "[WARNING] No HTML footer found at: " + footerPath
 
 
 		if os.path.exists(bookPath):
@@ -254,16 +275,20 @@ def main():
 	#print PASSAGES
 
 def linearPassageText(aPassage, aMap):
+	global HTML
+
 	psgText = ""
 	goto = " (go to "
 	key = aMap[aPassage["key"]]
-	psgText += "<p class='paragraph'><span class='number'>" + "[" + key + "] </span>" + aPassage['pt'] + "</p>"
-	# Add a delimeter so we know it is done
-	#psgText += "\n---"
-	psgText += "\n"
+
+	if HTML:
+		psgText += "<p class='paragraph'><span class='number'>" + "[" + key + "] </span>" + aPassage['pt'] + "</p>"
+		psgText += "\n"
+	else:
+		psgText += "[" + key + "] " + aPassage['pt']
 
 	if aPassage['en'] == True:
-		psgText += "--- THE END ---"
+		psgText += "\n--- THE END ---"
 
 		#if aPassage['eq'] == 1:
 		#	psgText += "\n* - THE END"#* Oh no! Better luck next adventure. * - THE END"
@@ -276,16 +301,24 @@ def linearPassageText(aPassage, aMap):
 		#elif aPassage['eq'] == 5:
 		#	psgText += "\n***** - THE END"#***** Congratulations! You sure know your stuff. ***** - THE END"
 	else:
+		choiceText = ""
+		if HTML == False:
+			# Add a delimeter so we know it is done
+			choiceText += "\n---"
+
 		for choice in aPassage['choices']:
 			m = re.search(kGotoTempTag, psgText)
 
-			choiceText = ""
-			if psgText[m.start() - 1] == '\n':
-				choiceText += ("<span class='choice-title choice-standalone'>" + choice['text'] + "</span>" + "<span class='goto'>" + goto + aMap[choice['link']] + ")</span>")
+			if HTML:
+				if psgText[m.start() - 1] == '\n':
+					choiceText += ("<span class='choice-title choice-standalone'>" + choice['text'] + "</span>" + "<span class='goto'>" + goto + aMap[choice['link']] + ")</span>")
+				else:
+					choiceText += ("<span class='choice-title'>" + choice['text'] + "</span>" + "<span class='goto'>" + goto + aMap[choice['link']] + ")</span>")
 			else:
-				choiceText += ("<span class='choice-title'>" + choice['text'] + "</span>" + "<span class='goto'>" + goto + aMap[choice['link']] + ")</span>")
+				choiceText += ("\n- " + choice['text'] + goto + aMap[choice['link']] + ")")
 
 			psgText = re.sub(kGotoTempTag, choiceText, psgText, 1);
+			choiceText = ""
 	return psgText
 
 def linearPassageTextFull(aPassages, aStoryMap, aKey):
@@ -669,17 +702,21 @@ def ParseForAttributes(tags):
 
 def ParseForChoices(bodyText):
 	global LINEAR
+	global HTML
 
 	# Cleanse choices of carriage returns.
 	bodyText = bodyText.replace('\r', '\n')
-	bodyText = bodyText.replace('\n\n', '<br>\n')
+	if HTML:
+		bodyText = bodyText.replace('\n\n', '<br>\n')
+	#else:
+		#bodyText = bodyText.replace('\n\n', '\n')
 
 	choices = []
 	# Search for either [[Choice Text|Choice Key]] or [[Choice Key]] and warn about missing text.
-	matchCount = len(re.findall(r"\[\[([^\[\]|]+)(?:\|([\w\d\s]+))?\]\]", bodyText))
+	matchCount = len(re.findall(r"\n*\[\[([^\[\]|]+)(?:\|([\w\d\s]+))?\]\]", bodyText))
 
 	for index in range(0, matchCount):
-		m = re.search(r"\[\[([^\[\]|]+)(?:\|([\w\d\s]+))?\]\]", bodyText)
+		m = re.search(r"\n*\[\[([^\[\]|]+)(?:\|([\w\d\s]+))?\]\]", bodyText)
 	#for m in re.finditer(r"\[\[([^\[\]|]+)(?:\|([\w\d\s]+))?\]\]", text):
 		# For [[Run away.|1B]], m.group(0) is whole match, m.group(1) = 'Run away.', and m.group(2) = '1B'
 		# For [[Run away.]], same but there is no m.group(2)
@@ -709,20 +746,26 @@ def ParseForChoices(bodyText):
 		choice['link'] = link
 		choice['text'] = text
 		choices.append(choice)
-		bodyText = re.sub(r"\[\[([^\[\]|]+)(?:\|([\w\d\s]+))?\]\]", kGotoTempTag, bodyText, 1)
+		bodyText = re.sub(r"\n*\[\[([^\[\]|]+)(?:\|([\w\d\s]+))?\]\]", kGotoTempTag, bodyText, 1)
 
 	if len(choices) == 0:
 		return True
 	return choices
 
 def ParseForBody(text):
+	global HTML
+
 	# Cleanse of carriage returns (but leave newlines!).
 	#
 	body = text
 	body = body.replace('\r', '\n')
-	body = body.replace('\n\n', '<br>\n')
 
-	body = re.sub(r"\[\[([^\[\]|]+)(?:\|([\w\d\s]+))?\]\]", kGotoTempTag, text)
+	if HTML:
+		body = body.replace('\n\n', '<br>\n')
+	#else:
+		#body = body.replace('\n\n', '\n')
+
+	body = re.sub(r"\n*\[\[([^\[\]|]+)(?:\|([\w\d\s]+))?\]\]", kGotoTempTag, text)
 
 	return body
 
