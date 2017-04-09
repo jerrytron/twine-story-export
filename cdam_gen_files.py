@@ -387,8 +387,9 @@ class CDAMGenFiles:
 			info['offsets'] = 'end'
 			data += chr(int(attribute, 2))
 		else:
+			print passage
 			# Add # of choices - 1 byte
-			choices = passage['cs']
+			choices = passage["choices"]
 			data += chr(len(choices))
 
 			#append = False
@@ -482,13 +483,13 @@ class CDAMGenFiles:
 					data += chr(0x00)
 				else:
 					#print "Single Choice Text Length: " + str(len(choice))
-					data += bytearray(struct.pack('<H', len(choice)))
+					data += bytearray(struct.pack('<H', len(choice["text"])))
 
 				# Choice text.
 				if append:
 					data += chr(0x00)
 				else:
-					data += bytearray(self.translate_unicode(choice))
+					data += bytearray(self.translate_unicode(choice["text"]))
 
 				# Passage offset.
 				offset = int(nodeMap[key][index])
@@ -899,11 +900,12 @@ class CDAMGenFiles:
 		return True
 
 	def WriteToFile(self, path, data):
-		#path = path + ".html"
+		#path = path + ".txt"
 		try:
 			file = open(path, 'w')
 		except IOError:
 			print "[ERROR] Failed to write file: " + path
+			file.close()
 			return False
 
 		#file.write(data)

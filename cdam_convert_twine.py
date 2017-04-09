@@ -82,6 +82,7 @@ def main():
 	parser.add_argument('--ver', default='0.0.0', action='store', help='Story version in three parts, x.x.x')
 	parser.add_argument('--source', default='', action='store', help='The Twine source code file.')
 	parser.add_argument('--output', default='./', action='store', help='The location to create the output files.')
+	parser.add_argument('--filename', default='', action='store', help='The output filename.')
 	parser.add_argument('--json', action='store_true', help='Output as a JSON text file.')
 	parser.add_argument('--linear', action='store_true', help='Output as a linear text file for humans.')
 	parser.add_argument('--html', action='store_true', help='Output as html document.')
@@ -152,6 +153,8 @@ def main():
 		 	return
 
 		bookPath = STORY_TITLE.lower().replace(" ", "_") + "_BIN.dam"
+		if args.filename != "":
+			bookPath = args.filename + "_BIN.dam"
 		bookPath = os.path.join(args.output, bookPath)
 
 
@@ -161,6 +164,8 @@ def main():
 
 		if args.operation:
 			opPath = STORY_TITLE.lower().replace(" ", "_") + "_OPS.dam"
+			if args.filename != "":
+				opPath = args.filename + "_OPS.dam"
 			opPath = os.path.join(args.output, opPath)
 			opData = bytearray()
 			opData += bytearray(struct.pack('<H', TOTAL_OPS))
@@ -175,8 +180,12 @@ def main():
 
 		if HTML:
 			bookPath = STORY_TITLE.lower().replace(" ", "_") + "_LINEAR.html"
+			if args.filename != "":
+				bookPath = args.filename + "_LINEAR.html"
 		else:
 			bookPath = STORY_TITLE.lower().replace(" ", "_") + "_LINEAR.txt"
+			if args.filename != "":
+				bookPath = args.filename + "_LINEAR.txt"
 		bookPath = os.path.join(args.output, bookPath)
 
 		book = ""
@@ -395,6 +404,12 @@ def BuildCDAMStory(wiki):
 	global STORY_AUTHOR
 	global LINEAR
 
+	for key in wiki.tiddlers.keys():
+		upKey = key.strip().upper()
+		if upKey not in wiki.tiddlers.keys():
+			wiki.tiddlers[upKey] = wiki.tiddlers[key]
+			del wiki.tiddlers[key]
+
 	for key in wiki.tiddlers:
 		if wiki.tiddlers[key].title == "StoryTitle":
 			if STORY_TITLE == "":
@@ -407,12 +422,12 @@ def BuildCDAMStory(wiki):
 				STORY_AUTHOR = wiki.tiddlers[key].text
 			continue
 
-		#print "Passage: " + key
+		print "Passage: " + key
 		passage = ParseForAttributes(wiki.tiddlers[key].tags)
 		if passage == False:
 			continue
 		# Is this the starting passage?
-		if key.upper() == "START":
+		if key == "START":
 			if "ps" not in passage:
 				passage["ps"] = 0
 			if "cp" not in passage:
@@ -438,7 +453,8 @@ def BuildCDAMStory(wiki):
 			passage["pp"] = 0
 		rss = wiki.tiddlers[key].toRss()
 		choicePairs = ParseForChoices(rss.description)
-		#PP.pprint(choicePairs)
+		print choicePairs
+		PP.pprint(choicePairs)
 		passage["pt"] = ParseForBody(rss.description)
 
 		if type(choicePairs) is bool:
@@ -449,7 +465,7 @@ def BuildCDAMStory(wiki):
 						print "[WARNING] Ending quality 'eq' not set for " + key
 					# Default to average.
 					passage["eq"] = 3
-				STORY_MAP[key.upper()] = passage["eq"]
+				STORY_MAP[key] = passage["eq"]
 				passage["en"] = True
 				if "cc" not in passage:
 					passage["cc"] = True
@@ -460,23 +476,24 @@ def BuildCDAMStory(wiki):
 			nodes = []
 			choices = []
 			for item in choicePairs:
-				nodes.append(item['link'])
+				nodes.append(item['link'].strip().upper())
 				choices.append(item['text'])
 			if ValidateChoices(wiki.tiddlers, nodes) == False:
 				print "[ERROR] Failed to validate choices for node."
 				return False
 			else:
-				STORY_MAP[key.upper()] = nodes
+				STORY_MAP[key] = nodes
 			passage["en"] = False
 			#passage["cs"] = choices
 			#passage["ck"] = nodes
 			passage["choices"] = choicePairs
-		#print "Validating passage for node " + key
+		print "Validating passage for node " + key
 		if ValidatePassage(passage) == False:
 			print "[ERROR] Failed to validate passage."
 			return False
 		else:
-			PASSAGES[key.upper()] = passage
+			PASSAGES[key] = passage
+			print PASSAGES
 
 def ParseOperation(opParts, iteration):
 	global REPORT
@@ -743,8 +760,8 @@ def ParseForChoices(bodyText):
 		elif text.lower() == kContinue:
 			text = kContinueCopy
 
-		choice['link'] = link
-		choice['text'] = text
+		choice['link'] = link.strip().upper()
+		choice['text'] = text.strip()
 		choices.append(choice)
 		bodyText = re.sub(r"\n*\[\[([^\[\]|]+)(?:\|([\w\d\s]+))?\]\]", kGotoTempTag, bodyText, 1)
 
@@ -773,6 +790,7 @@ def ValidateChoices(tiddlers, nodes):
 	#print tiddlers
 	for node in nodes:
 		if node not in tiddlers:
+			print tiddlers
 			print "[ERROR] Choice key found without matching passage: " + node
 			return False
 	return True
@@ -805,32 +823,34 @@ def SimplifyNaming():
 	PASSAGES.clear()
 
 	for titleKey in newMap:
-		if titleKey != "START":
+		upTitleKey = titleKey.strip().upper()
+		if upTitleKey != "START":
 			# Create a map from all passage titles to its new numbered title.
-			TITLE_MAP[titleKey] = str(i)
+			TITLE_MAP[upTitleKey] = str(i)
 			i += 1
 		else:
 			TITLE_MAP["START"] = "0"
 
 	for titleKey in newMap:
-		if type(newMap[titleKey]) is list:
+		upTitleKey = titleKey.strip().upper()
+		if type(newMap[upTitleKey]) is list:
 			i = 0
-			for val in newMap[titleKey]:
+			for val in newMap[upTitleKey]:
 				# Links always referenced in uppercase.
 				#print "HERE: " + titlekey + " : " + i
-				newMap[titleKey][i] = TITLE_MAP[val.upper()]
+				newMap[upTitleKey][i] = TITLE_MAP[val.strip().upper()]
 				i += 1
-		STORY_MAP[TITLE_MAP[titleKey]] = newMap[titleKey]
-		PASSAGES[TITLE_MAP[titleKey]] = newPassages[titleKey]
-		PASSAGES[TITLE_MAP[titleKey]]['key'] = TITLE_MAP[titleKey]
+		STORY_MAP[TITLE_MAP[upTitleKey]] = newMap[upTitleKey]
+		PASSAGES[TITLE_MAP[upTitleKey]] = newPassages[upTitleKey]
+		PASSAGES[TITLE_MAP[upTitleKey]]['key'] = TITLE_MAP[upTitleKey]
 
 	# Create array for all incoming links on a passage.
 	for key in PASSAGES:
 		psg = PASSAGES[key]
 		if "choices" in psg and len(psg["choices"]) > 0:
 			for choice in psg["choices"]:
-				choice["link"] = TITLE_MAP[choice["link"].upper()]
-				psgKey = choice["link"]
+				choice["link"] = TITLE_MAP[choice["link"].strip().upper()]
+				psgKey = choice["link"].strip().upper()
 				if "ik" not in PASSAGES[psgKey]:
 					PASSAGES[psgKey]["ik"] = [""]
 				PASSAGES[psgKey]["ik"].append(psg["key"])
