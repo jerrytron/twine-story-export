@@ -493,7 +493,7 @@ def BuildCDAMStory(wiki):
 			return False
 		else:
 			PASSAGES[key] = passage
-			print PASSAGES
+			#print PASSAGES
 
 def ParseOperation(opParts, iteration):
 	global REPORT
@@ -763,13 +763,19 @@ def ParseForChoices(bodyText):
 		choice['link'] = link.strip().upper()
 		choice['text'] = text.strip()
 		choices.append(choice)
-		bodyText = re.sub(r"\n*\[\[([^\[\]|]+)(?:\|([\w\d\s]+))?\]\]", kGotoTempTag, bodyText, 1)
+
+		replaceChoices = ""
+		if LINEAR:
+			replaceChoices = kGotoTempTag
+
+		bodyText = re.sub(r"\n*\[\[([^\[\]|]+)(?:\|([\w\d\s]+))?\]\]", replaceChoices, bodyText, 1)
 
 	if len(choices) == 0:
 		return True
 	return choices
 
 def ParseForBody(text):
+	global LINEAR
 	global HTML
 
 	# Cleanse of carriage returns (but leave newlines!).
@@ -782,7 +788,11 @@ def ParseForBody(text):
 	#else:
 		#body = body.replace('\n\n', '\n')
 
-	body = re.sub(r"\n*\[\[([^\[\]|]+)(?:\|([\w\d\s]+))?\]\]", kGotoTempTag, text)
+	replaceChoices = ""
+	if LINEAR:
+		replaceChoices = kGotoTempTag
+
+	body = re.sub(r"\n*\[\[([^\[\]|]+)(?:\|([\w\d\s]+))?\]\]", replaceChoices, text)
 
 	return body
 
