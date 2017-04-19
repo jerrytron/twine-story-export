@@ -387,7 +387,7 @@ class CDAMGenFiles:
 			info['offsets'] = 'end'
 			data += chr(int(attribute, 2))
 		else:
-			print passage
+			#print passage
 			# Add # of choices - 1 byte
 			choices = passage["choices"]
 			data += chr(len(choices))

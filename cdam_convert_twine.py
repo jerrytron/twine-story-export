@@ -422,7 +422,7 @@ def BuildCDAMStory(wiki):
 				STORY_AUTHOR = wiki.tiddlers[key].text
 			continue
 
-		print "Passage: " + key
+		#print "Passage: " + key
 		passage = ParseForAttributes(wiki.tiddlers[key].tags)
 		if passage == False:
 			continue
@@ -453,8 +453,7 @@ def BuildCDAMStory(wiki):
 			passage["pp"] = 0
 		rss = wiki.tiddlers[key].toRss()
 		choicePairs = ParseForChoices(rss.description)
-		print choicePairs
-		PP.pprint(choicePairs)
+		#PP.pprint(choicePairs) # Print pretty!
 		passage["pt"] = ParseForBody(rss.description)
 
 		if type(choicePairs) is bool:
@@ -487,7 +486,7 @@ def BuildCDAMStory(wiki):
 			#passage["cs"] = choices
 			#passage["ck"] = nodes
 			passage["choices"] = choicePairs
-		print "Validating passage for node " + key
+		#print "Validating passage for node " + key
 		if ValidatePassage(passage) == False:
 			print "[ERROR] Failed to validate passage."
 			return False
@@ -768,7 +767,7 @@ def ParseForChoices(bodyText):
 		if LINEAR:
 			replaceChoices = kGotoTempTag
 
-		bodyText = re.sub(r"\n*\[\[([^\[\]|]+)(?:\|([\w\d\s]+))?\]\]", replaceChoices, bodyText, 1)
+		bodyText = re.sub(r"\n*\s*\[\[([^\[\]|]+)(?:\|([\w\d\s]+))?\]\]\s*", replaceChoices, bodyText, 1)
 
 	if len(choices) == 0:
 		return True
@@ -792,7 +791,7 @@ def ParseForBody(text):
 	if LINEAR:
 		replaceChoices = kGotoTempTag
 
-	body = re.sub(r"\n*\[\[([^\[\]|]+)(?:\|([\w\d\s]+))?\]\]", replaceChoices, text)
+	body = re.sub(r"\n*\s*\[\[([^\[\]|]+)(?:\|([\w\d\s]+))?\]\]\s*", replaceChoices, text)
 
 	return body
 
@@ -800,7 +799,7 @@ def ValidateChoices(tiddlers, nodes):
 	#print tiddlers
 	for node in nodes:
 		if node not in tiddlers:
-			print tiddlers
+			#print tiddlers
 			print "[ERROR] Choice key found without matching passage: " + node
 			return False
 	return True
