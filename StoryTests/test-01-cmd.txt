@@ -1,1 +1,6 @@
-./cdam_convert_twine.py --title "Test One" --author "Linear Convertor" --ver "1.0.0" --contact "@j3rrytron" --source ./StoryTests/test-01.txt --output ./StoryTests --linear
+Linear Generation
+./cdam_convert_twine.py --title "Test One" --author "Test Author" --ver "1.0.0" --contact "@twitter" --source ./StoryTests/test-01.txt --output ./StoryTests --filename "test-01" --linear
+
+
+Binary Generation
+./cdam_convert_twine.py --title "Test One" --author "Test Author" --ver "1.0.0" --contact "@twitter" --source ./StoryTests/test-01.txt --output ./StoryTests --filename "test-01" --binary
