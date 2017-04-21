@@ -33,7 +33,7 @@ Run all examples from a command line inside the folder containing the python scr
 
 **_If you have a title, name, or text that requires either single or double quotes, simply use the opposite quotes to contain the entire string._**
 
-### Explanation of the Options
+## Explanation of the Options
 Not all options are shown above. Here are details on all available options. Text can be enclosed in single 'text' or double "text" quotes.
 
 Option | Default | Max Length | Description
@@ -55,9 +55,5 @@ Option | Description | Dependency
 `--html` | `BETA: Generates a playable HTML file.` | `n/a`
 `--json` | `BROKEN: Generates a JSON file.` | `n/a`
 
-
-If you include --contact, that is text that will print out at the END of the story. Title and author print out at the beginning.
-
-Output is the path you want to create the file, above it just creates it where you execute the script. Source is simply the path to the src file Twine generates. Remember, you don't run this on the Twine file directly!
-
-If you get any errors, the first thing you should do is email the Twine source file to me (<name>.tws). By now I've probably found a lot of the edge cases for this conversion script, but it is a MESS so you never know.
+## Help!
+If you get any errors, the first thing you should do is email the Twine source file to me (<name>.tws). Either you already know my email, tweet me at [@j3rrytron](https://www.twitter.com/j3rrytron), or you can use my contact form on [jerrytron.com](http://jerrytron.com). This script was never meant to be released, but here we are.
