@@ -77,7 +77,7 @@ def main():
 	parser.add_argument('--subtitle', default='NONE', action='store', help='The story subtitle.')
 	parser.add_argument('--author', default='Anonymous', action='store', help='The author of the story.')
 	parser.add_argument('--credits', default='', action='store', help='Additional story credits.')
-	parser.add_argument('--contact', default='Follow @choosatron online!', action='store', help='Misc contact info.')
+	parser.add_argument('--contact', default='Follow creator @j3rrytron online!', action='store', help='Misc contact info.')
 	parser.add_argument('--lang', default='eng', action='store', help='Up to four character language code.')
 	parser.add_argument('--ver', default='0.0.0', action='store', help='Story version in three parts, x.x.x')
 	parser.add_argument('--source', default='', action='store', help='The Twine source code file.')

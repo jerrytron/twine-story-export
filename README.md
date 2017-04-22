@@ -39,21 +39,21 @@ Not all options are shown above. Here are details on all available options. Text
 Option | Default | Max Length | Description
 ------ | ------- | ---------- | -----------
 --title | "Untitled" | 64 | Title of your story.
-`--subtitle` | `""` | `32` | `Addition to the title on a new line.`
-`--author` | `"Anonymous"` | `64` | `The name of the writer.`
-`--credits` | `""` | `80` | `Printed after play, place for additional credits or thanks.`
-`--contact` | `"Follow @choosatron online!"` | `128` | `Printed after play, a place to put contact info like a url or twitter.`
+--subtitle | "" | 32 | Addition to the title on a new line.
+--author | "Anonymous" | 64 | The name of the writer.
+--credits | "" | 80 | Printed after play, place for additional credits or thanks.
+--contact | "Follow creator @j3rrytron online!" | 128 | Printed after play, a place to put contact info like a url or twitter.
 
 Option | Description | Dependency
 ------ | ----------- | ----------
-`--source ` | `Path to the Twine source file.` | `n/a`
-`--output` | `Path to output folder.` | `n/a`
-`--filename` | `Filename (appended with type, and proper extension).` | `n/a`
-`--linear` | `Generates a playable linear document.` | `n/a`
-`--randseed #` | `Allows regeneration with the same random output.` | `--linear`
-`--binary` | `Generates a Choosatron compatible binary.` | `n/a`
-`--html` | `BETA: Generates a playable HTML file.` | `n/a`
-`--json` | `BROKEN: Generates a JSON file.` | `n/a`
+--source | Path to the Twine source file. | n/a
+--output | Path to output folder. | n/a
+--filename | Filename (appended with type, and proper extension). | n/a
+--linear | Generates a playable linear document. | n/a
+--randseed # | Allows regeneration with the same random output. | --linear
+--binary | Generates a Choosatron compatible binary. | n/a
+--html | BETA: Generates a playable HTML file. | n/a
+--json | BROKEN: Generates a JSON file. | n/a
 
 ## Help!
 If you get any errors, the first thing you should do is email the Twine source file to me (<name>.tws). Either you already know my email, tweet me at [@j3rrytron](https://www.twitter.com/j3rrytron), or you can use my contact form on [jerrytron.com](http://jerrytron.com). This script was never meant to be released, but here we are.
