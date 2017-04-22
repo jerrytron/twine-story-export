@@ -38,7 +38,7 @@ Not all options are shown above. Here are details on all available options. Text
 
 Option | Default | Max Length | Description
 ------ | ------- | ---------- | -----------
-`--title` | `"Untitled"` | `64` | `Title of your story.`
+--title | "Untitled" | 64 | Title of your story.
 `--subtitle` | `""` | `32` | `Addition to the title on a new line.`
 `--author` | `"Anonymous"` | `64` | `The name of the writer.`
 `--credits` | `""` | `80` | `Printed after play, place for additional credits or thanks.`
