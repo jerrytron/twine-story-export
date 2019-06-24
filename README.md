@@ -5,6 +5,8 @@ Download and install Twine:
 OSX: http://twinery.org/downloads/twine_1.4.2_osx.zip
 Win: http://twinery.org/downloads/twine_1.4.2_win.exe
 
+__Note: This is possible with the downloadable version of Twine 2, but you need to install a plugin that allows exporting into the Twee format of Twine 1.x. I will try to add a guide for this soon.__
+
 ## Guidelines for a Choosatron Compatible Twine Story
 
 1. You MUST have a _Start_ passage as your story beginning.
@@ -21,14 +23,17 @@ Save it as a .txt file. This is the source file you feed the script.
 
 ## Generating a Linear Document (like a CYOA story)
 This can be useful to verify that your binary conversion will work, and is a fun way to share a functional interactive fiction story in a linear (and printable) document.
+
+__Note: All python scripts were written for Python 2. If that is not your system default, you must prepend commands with 'python2'.__
+
 ```
-./cdam_convert_twine.py --title "Another Day at the MIA" --author "Jerry Belich" --ver "1.0.0" --contact "@j3rrytron" --source ./StoryTests/another_day_at_the_mia_SRC.txt --output ./StoryTests --filename 'another_day_at_the_mia' --linear
+python2 ./cdam_convert_twine.py --title "Another Day at the MIA" --author "Jerry Belich" --ver "1.0.0" --contact "@j3rrytron" --source ./StoryTests/another_day_at_the_mia_SRC.txt --output ./StoryTests --filename 'another_day_at_the_mia' --linear
 ```
 
 ## Generating a Choosatron Binary
 Run all examples from a command line inside the folder containing the python scripts. _StoryTests_ is a folder one level deeper and the examples use that folder for test content.
 ```
-./cdam_convert_twine.py --title "Another Day at the MIA" --author "Jerry Belich" --ver "1.0.0" --contact "@j3rrytron" --source ./StoryTests/another_day_at_the_mia_SRC.txt --output ./StoryTests --filename 'another_day_at_the_mia' --binary
+python2 ./cdam_convert_twine.py --title "Another Day at the MIA" --author "Jerry Belich" --ver "1.0.0" --contact "@j3rrytron" --source ./StoryTests/another_day_at_the_mia_SRC.txt --output ./StoryTests --filename 'another_day_at_the_mia' --binary
 ```
 
 **_If you have a title, name, or text that requires either single or double quotes, simply use the opposite quotes to contain the entire string._**
