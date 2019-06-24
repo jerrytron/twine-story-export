@@ -2,10 +2,31 @@
 A repo for code that will import Twine source and export content in other formats.
 
 Download and install Twine:
-OSX: http://twinery.org/downloads/twine_1.4.2_osx.zip
-Win: http://twinery.org/downloads/twine_1.4.2_win.exe
 
-__Note: This is possible with the downloadable version of Twine 2, but you need to install a plugin that allows exporting into the Twee format of Twine 1.x. I will try to add a guide for this soon.__
+[macOS download](http://twinery.org/downloads/twine_1.4.2_osx.zip) - [Windows download](http://twinery.org/downloads/twine_1.4.2_win.exe)
+
+__Note: This is possible with the downloadable version of Twine 2, but you need to install the 'Entweedle' plugin below (or another that allows Twee export, the original Twine source format).__
+
+Alternatively, download and install Twine 2:
+
+[macOS download](https://github.com/klembot/twinejs/releases/download/2.3.2/twine_2.3.2_macos.dmg) - [Windows download](https://github.com/klembot/twinejs/releases/download/2.3.2/twine_2.3.2_win.exe)
+
+__Required plugin: [Illume - Proofing Tool w/ Twee Export](http://www.maximumverbosity.net/twine/Illume/)__
+
+Once the plugin is installed and setup, from within the editor for a story, click on the title and select _View Proofing Copy_ from the list. Then select _Export Twee Source__ from the list in the upper left.
+
+__Notes for Twine 2:__
+
+This guide assumes exporting Twee source from Twine 1 where files are _.txt_ by default. Exporting form Illume defaults to _.tw_. You can either save as _.txt_ instead, or simply use the _.tw_ extention in the commands.
+
+The exported source might include the following sections that (until I've tested) should be deleted:
+```
+:: UserScript[script]
+/* twine-user-script-joiner */
+
+:: UserStylesheet[stylesheet]
+/* twine-user-stylesheet-joiner */
+```
 
 ## Guidelines for a Choosatron Compatible Twine Story
 
