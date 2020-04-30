@@ -17,7 +17,7 @@ sys.setdefaultencoding('utf8')
 
 VERSION = "1.0"
 
-BINARY_VER = "1.0.0"
+BINARY_VER = "1.0.5"
 
 # For holding binary variable keys and values.
 VARIABLES = {}
@@ -99,6 +99,8 @@ def main():
 	STORY_CONTACT = args.contact
 	STORY_LANGUAGE = args.lang
 	STORY_VERSION = args.ver
+
+	print "--- " + args.title + " ---"
 
 	if args.randseed:
 		SEED = int(args.randseed)
@@ -217,8 +219,8 @@ def main():
 
 		while len(allKeys) > 0:
 			index += 1
-			if "choices" in p and len(p["choices"]) == 1 and p["choices"][0]["link"] in allKeys:
-				p = PASSAGES[p["choices"][0]["link"]]
+			if "cs" in p and len(p["cs"]) == 1 and p["cs"][0]["link"] in allKeys:
+				p = PASSAGES[p["cs"][0]["link"]]
 				key = p["key"]
 				# Map from old to new index.
 				newMap[key] = str(index)
@@ -279,7 +281,7 @@ def main():
 		if result == False:
 			print "[ERROR] Failed to build story."
 
-	print "Complete!"
+	print "--- Complete! ---\n"
 	#print STORY_MAP
 	#print PASSAGES
 
@@ -485,7 +487,7 @@ def BuildCDAMStory(wiki):
 			passage["en"] = False
 			#passage["cs"] = choices
 			#passage["ck"] = nodes
-			passage["choices"] = choicePairs
+			passage["cs"] = choicePairs
 		#print "Validating passage for node " + key
 		if ValidatePassage(passage) == False:
 			print "[ERROR] Failed to validate passage."
@@ -856,8 +858,8 @@ def SimplifyNaming():
 	# Create array for all incoming links on a passage.
 	for key in PASSAGES:
 		psg = PASSAGES[key]
-		if "choices" in psg and len(psg["choices"]) > 0:
-			for choice in psg["choices"]:
+		if "cs" in psg and len(psg["cs"]) > 0:
+			for choice in psg["cs"]:
 				choice["link"] = TITLE_MAP[choice["link"].strip().upper()]
 				psgKey = choice["link"].strip().upper()
 				if "ik" not in PASSAGES[psgKey]:

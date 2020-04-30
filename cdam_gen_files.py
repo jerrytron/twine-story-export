@@ -14,6 +14,7 @@ import array
 import shutil
 import string
 import uuid
+import hashlib
 #import regex as re
 #import unicodedata
 #from unidecode import unidecode
@@ -311,7 +312,7 @@ class CDAMGenFiles:
 		psgAttribute = ""
 		append = False
 
-		if 'cs' in passage and len(passage['cs']) == 1 and passage['cs'][0] == "*":
+		if 'cs' in passage and len(passage['cs']) == 1 and passage['cs'][0]['text'] == "*":
 			print "Passage Append: " + key
 			psgAttribute += "1"
 			append = True
@@ -389,7 +390,7 @@ class CDAMGenFiles:
 		else:
 			#print passage
 			# Add # of choices - 1 byte
-			choices = passage["choices"]
+			choices = passage["cs"]
 			data += chr(len(choices))
 
 			#append = False
@@ -489,6 +490,7 @@ class CDAMGenFiles:
 				if append:
 					data += chr(0x00)
 				else:
+					print(choice["text"])
 					data += bytearray(self.translate_unicode(choice["text"]))
 
 				# Passage offset.
@@ -609,6 +611,7 @@ class CDAMGenFiles:
 		if len(language) > LANG_MAX:
 			print "Language longer than " + LANG_MAX + " bytes: " + language
 			return False
+
 		# Title Max - 64 bytes
 		if len(title) > TITLE_MAX:
 			print "Title longer than " + TITLE_MAX + " bytes: " + title
@@ -634,7 +637,6 @@ class CDAMGenFiles:
 			print "Contact longer than " + CONTACT_MAX + " bytes: " + contact
 			return False
 
-
 		data = bytearray()
 
 		# Header size.
@@ -644,12 +646,6 @@ class CDAMGenFiles:
 		# Add the start of header - 1 byte
 		data += chr(0x01)
 
-		# Generate the UUID
-		storyUuid = uuid.uuid4()
-		print  "UUID: " + str(storyUuid)
-		#data += storyUuid.bytes_le # little endian hex
-		data += str(storyUuid)
-
 		# Binary Version - 3 bytes
 		parts = [int(x) for x in binVer.split('.')]
 		if len(parts) != 3:
@@ -658,6 +654,14 @@ class CDAMGenFiles:
 		data += chr(parts[0])
 		data += chr(parts[1])
 		data += chr(parts[2])
+
+		# Generate the UUID
+		m = hashlib.md5()
+		m.update(author + title)
+		storyUuid = uuid.UUID(m.hexdigest())
+		print  "UUID: " + str(storyUuid)
+		#data += storyUuid.bytes_le # little endian hex
+		data += str(storyUuid)
 
 		# Flags - 4 bytes
 		# Scripting - Variables - Images - Rsvd x 5
@@ -824,8 +828,8 @@ class CDAMGenFiles:
 			ord(u'ä'): u'ae',
 			ord(u'ö'): u'oe',
 			ord(u'ü'): u'ue',
-         	ord(u'ß'): None,
-         	ord(u'—'): u'-',
+			ord(u'ß'): None,
+			ord(u'—'): u'-',
 		}
 		#s = to_translate.decode('utf8')
 		return to_translate.translate(table).encode('ascii', 'ignore')
