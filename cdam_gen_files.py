@@ -490,7 +490,6 @@ class CDAMGenFiles:
 				if append:
 					data += chr(0x00)
 				else:
-					print(choice["text"])
 					data += bytearray(self.translate_unicode(choice["text"]))
 
 				# Passage offset.
