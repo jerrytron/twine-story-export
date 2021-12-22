@@ -308,9 +308,9 @@ class TiddlyWiki:
         if tiddler.title in self.tiddlers:
             if (tiddler == self.tiddlers[tiddler.title]) and \
                  (tiddler.modified > self.tiddlers[tiddler.title].modified):
-                self.tiddlers[unicode(tiddler.title)] = tiddler
+                self.tiddlers[tiddler.title] = tiddler
         else:
-            self.tiddlers[unicode(tiddler.title)] = tiddler
+            self.tiddlers[tiddler.title] = tiddler
 
         return tiddler
 

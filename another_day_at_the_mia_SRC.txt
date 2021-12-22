@@ -1,0 +1,147 @@
+﻿:: StoryTitle
+Another Day at the MIA
+
+
+:: StoryAuthor
+Jerry Belich
+
+
+:: Start
+Wandering the Minneapolis Institute of Art, thinking to yourself. Art, art, art...artists looking at art, wanting to talk about the art they think should be there instead of the art that is. GOD.
+
+[[Boy I've been cynical lately.|1A]]
+[[I want to PUNCH the art!|1B]]
+
+
+
+:: 1A
+Why is that? What is wrong with me? Have I not been arting enough?
+
+[[Wait, arting isn't a word.|2A]]
+[[That's it, I'm going to art something FIERCE|2B]]
+
+
+
+:: 1B
+*CRACK* OWE!! MUTHER@#*$ing bronze statue! Why couldn't I have been passing a triptic dissecting the philosophy of cushion softness?!?
+
+[[I should find some ice.|2C]]
+[[Maybe the pain is GOOD.|2D]]
+
+
+
+:: 2A
+But, why not? I CREATED it. I just MADE an art! Heh...these posers are looking at art, I'm making it, in my HEAD!
+
+[[I'm getting a headache...|3A]]
+[[I need to prove it somehow.|2D]]
+
+
+
+:: 2B
+YES! I still have the crayons in my pocket from Denny's! Looks like a blank spot on the wall over there...but what to art. I need inspiration. What was the last movie I watched?
+
+[[Jurassic Park|3C]]
+[[Koyaanisqatsi|3D]]
+
+
+
+:: 2C
+I'll just lean on this ice sculpture. Ah...yes. What is this of anyway? Oh #$@% no, a giant ice PBR can? Ok, calm down. The doc said if I don't get my cynicism under control it'll get to my lymph nodes, and then I'm DONE. *sigh*
+
+[[Feels loose...|3E]]
+[[I think I need a beer.|3F]]
+
+
+
+:: 2D
+Art is pain right? Or at least, comes from it. Kind of like charging your power meter in video games! I need POWER.
+
+[[Some hipsters over there!|3B]]
+[[Maybe the warriors can come out and play. *clink, clink*|4C]]
+
+
+
+:: 3A
+Ugh...that's right, the doctor told me something. If the cynicism doesn't get me, the internal dialogue will. I better take my medication.
+
+[[The red pill.|4A]]
+[[The blue pill.|4B]]
+
+
+
+:: 3B [eq:3]
+*SMACK* *POW* *ZOOM* Right in the kisser! Man, those thick rimmed glasses HURT though! Ok...after taking their pelts I should have enough flannels for the rest of the winter. I better get all this into my Ford Escort Hatchback and get home.
+
+
+:: 3C
+Oh yeah! *long scribbles of black* Done! The perfect likeness of the black guys severed arm. Just a touch more red for the blood...
+
+[[I need an artist's statement.|4D]]
+[[I need to price it.|4E]]
+
+
+
+:: 3D
+Ok here we go. *large swirls of red, organge, and yellow* There! The exhaust from a shuttle launch. Huh, even as a still frame it moves about as fast as the film.
+
+[[I need to price it.|4E]]
+[[I need an artist's statement.|4D]]
+
+
+
+:: 3E
+NNNGGH! There. *CRASH-SHATTER* Whoa. I better hide.
+
+[[Continue|4C]]
+
+
+
+:: 3F [eq:3]
+Oh, there's a bunch on the other side. *krcssssshhh* Ah...tastes like hard work I didn't have to do. I'll have a couple more...zzzzzzzzzzzz.....
+
+
+:: 4A [eq:2]
+Eh, vitamins are always good. Huh? Awe, they're closing. I barely got to see ANY arts!
+
+
+:: 4B
+The extacy will probably calm me down. Hmm..mmm. Art is soft, didn't realize that before. I'm gonna hug *this* guy for a while.
+
+[[You're cute, and ceramic.|5B]]
+[[Nice horse warrior.|5A]]
+
+
+
+:: 4C
+I know, back around this way...yes! The Terracotta warriors!
+
+[[Ride one of the horses.|5C]]
+[[Take a photo with a warrior.|5B]]
+
+
+
+:: 4D [eq:3]
+Ok, *scrawling...* I ARTED HERE, MOVE ALONG. Nice. I think it expresses it nicely. Huh? Closing! Stupid. Maybe I can come back tomorrow.
+
+
+:: 4E [eq:4]
+Let's see...I would say this is worth me not having to get a job...so $209,100.13. *tap tap* Yeah? Huh? Yeah, it's mine. Really? Oh, well, I'm afraid I don't take checks. Yeah, sorry. Look, I gotta go.
+
+
+:: 5A [eq:1]
+Hmm? What's that? Oh...this isn't the MIA. Your horse isn't even ceramic! A cop on a horse? Oh. No, yeah, it was a vitamin. Yes I'll stop hugging you. Wait, I still have my vitamin. It was extacy then.
+
+
+:: 5B [eq:4]
+Ok, *huuuuug* and my phone...ready, and *click-slip-SMASH* OWE! Oh, oh damn. I killed him! Huh, cool photo though...lemme quick tweet that. Done! Ok...oh SHIT!!! Ok, what would Theo Huxtable do? Oh yeah! Heh, I even keep super glue on me!
+
+...time passes...
+
+Phew! Took all night, but I think he looks pretty good! I better get going, unemployment won't file itself!
+
+
+:: 5C [eq:5]
+Unf! Ok! Got up here. Wow. This is cool! Nice horsey...*pet pet*. Huh? Why is it starting to glow?? OH. MY. GOD. It's a MAGIC HORSE! *naaaay!* I love you warrior horse! Com'on, let's ride! *clompity clompity clomp, into the sunset*
+
+

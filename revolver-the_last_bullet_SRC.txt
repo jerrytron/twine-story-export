@@ -1,0 +1,51 @@
+﻿:: StoryTitle
+Revolver
+
+
+:: StoryAuthor
+Jerry Belich
+
+
+:: Start [vu:set:var:chamber:raw:1 vu:set:var:bullets:raw:0 vu:set:var:just_loaded:raw:0]
+You stand in a concrete room. A round white clock with a cracked face reads {HOUR12}:{MINUTE}; the cool {DAY_PERIOD} air outside a distant memory. The only other visible features being the copper colored smears and cracks in the concrete.
+
+[[<append>|1A]]
+
+
+:: 1A [choice:1:dc:<:var:bullets:raw:6 choice:1:vu:+:var:bullets:raw:1 choice:1:vu:=:var:just_loaded:raw:1 choice:2:dc:>:var:bullets:raw:0 choice:2:vu:set:var:chamber:cmd:roll:raw:1:raw:6 choice:2:vu:=:var:just_loaded:raw:0 choice:3:dc:and:cmd:and:cmd:>:var:bullets:raw:0:cmd:>:var:chamber:var:bullets:cmd:equal:var:just_loaded:raw:0 choice:3:vu:set:var:chamber:cmd:+:cmd:if:cmd:<:var:chamber:raw:6:var:chamber:raw:1 choice:4:dc:and:cmd:and:cmd:>:var:bullets:raw:0:cmd:<=:var:chamber:var:bullets:cmd:equal:var:just_loaded:raw:0]
+You feel the heft and cool sensation of the revolver in your hand.
+
+[[Load a bullet into the gun.|2A]]
+[[Spin the barrel.|2B]]
+[[Fire the gun.|2C]]
+[[Fire the gun.|2D]]
+
+
+:: 2A
+You slide a bullet into one of the free chambers.
+
+[[<append>|1A]]
+
+
+:: 2B
+You spin the revolvers barrel, listening to the whir until it stops with a *click*.
+
+[[<append>|1A]]
+
+
+:: 2C [choice:2:vu:set:var:bullets:raw:0]
+You feel a flood of fear until you hear the deafening sound of the hammer slamming down. To your relief, nothing follows after.
+
+[[Prepare for another round.|1A]]
+[[Unload and pass the gun.|1A]]
+[[Put the gun down.|3A]]
+
+
+:: 2D
+You feel your mind expand... literally. Blood and bone splatter across the concrete floor, reviving the dark copper palette.
+
+
+:: 3A
+You place the gun down on a nearby cart, and walk away alive.
+
+
