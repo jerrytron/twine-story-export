@@ -47,7 +47,9 @@ This can be useful to verify that your binary conversion will work, and is a fun
 
 __Note: You must have [pipenv](https://pipenv.pypa.io/en/latest/install/) installed to run this set of tools.__
 
-First, enter the project folder and run: `pipenv shell`
+If this is your first use, navigate a command line to the project folder and run: `pipenv install`
+
+To start the python environment and use the tools, run: `pipenv shell`
 
 ```
 ./cdam_convert_twine.py --title 'Another Day at the MIA' --subtitle '' --author "Jerry Belich" --pubdate "2013-08-31-0500" --credits "" --lang "eng" --ver "1.0.0" --contact "Follow me: @j3rrytron" --linear --output ./story_linear --source ./another_day_at_the_mia_SRC.txt
