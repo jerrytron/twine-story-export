@@ -29,8 +29,8 @@ class TiddlyWiki:
 
     def toTwee(self, order = None):
         """Returns Twee source code for this TiddlyWiki."""
-        if not order: order = self.tiddlers.keys()
-        output = u''
+        if not order: order = list(self.tiddlers.keys())
+        output = ''
 
         for i in order:
             output += self.tiddlers[i].toTwee()
@@ -55,8 +55,8 @@ class TiddlyWiki:
 
     def toHtml(self, app, header = None, order = None, startAt = '', defaultName = ''):
         """Returns HTML code for this TiddlyWiki."""
-        if not order: order = self.tiddlers.keys()
-        output = u''
+        if not order: order = list(self.tiddlers.keys())
+        output = ''
 
         if not header:
             app.displayError("building: no story format was specified.\n"
@@ -105,7 +105,7 @@ class TiddlyWiki:
 
         # Embed any engine related files required by the header.
         embedded = header.filesToEmbed()
-        for key in embedded.keys():
+        for key in list(embedded.keys()):
             output = insertEngine(app, output, embedded[key], key)
             if not output: return
 
@@ -119,7 +119,7 @@ class TiddlyWiki:
         jquery = 'jquery' in self.storysettings and self.storysettings['jquery'] not in falseOpts
         modernizr = 'modernizr' in self.storysettings and self.storysettings['modernizr'] not in falseOpts
 
-        for i in filter(lambda a: (a.isScript() or a.isStylesheet()), self.tiddlers.itervalues()):
+        for i in [a for a in iter(self.tiddlers.values()) if (a.isScript() or a.isStylesheet())]:
             if not jquery and i.isScript() and re.search(r'requires? jquery', i.text, re.I):
                 jquery = True
             if not modernizr and re.search(r'requires? modernizr', i.text, re.I):
@@ -148,7 +148,7 @@ class TiddlyWiki:
             # Quick Rot13 shortcut
             if self.storysettings['obfuscatekey'] == 'rot13':
                 self.storysettings['obfuscatekey'] = "anbocpdqerfsgthuivjwkxlymz";
-            nss = u''
+            nss = ''
             for nsc in self.storysettings['obfuscatekey']:
                 if nss.find(nsc) == -1 and not nsc in ':\\\"n0':
                     nss = nss + nsc
@@ -162,7 +162,7 @@ class TiddlyWiki:
                     storyfragments.append(tiddler.toHtml(self.author))
                 else:
                     storyfragments.append(tiddler.toHtml(self.author, obfuscation = True, obfuscationkey = self.storysettings['obfuscatekey']))
-        storycode = u''.join(storyfragments)
+        storycode = ''.join(storyfragments)
 
         if output.count('"STORY"') > 0:
             output = output.replace('"STORY"', storycode)
@@ -179,7 +179,7 @@ class TiddlyWiki:
 
     def toRtf(self, order = None):
         """Returns RTF source code for this TiddlyWiki."""
-        if not order: order = self.tiddlers.keys()
+        if not order: order = list(self.tiddlers.keys())
 
         def rtf_encode_char(unicodechar):
             if ord(unicodechar) < 128:
@@ -229,7 +229,7 @@ class TiddlyWiki:
 
         # build a date-sorted list of tiddler titles
 
-        sorted_keys = self.tiddlers.keys()
+        sorted_keys = list(self.tiddlers.keys())
         sorted_keys.sort(key = lambda i: self.tiddlers[i].modified)
 
         # and then generate our items
@@ -281,7 +281,7 @@ class TiddlyWiki:
                     match = re.search(r'obfuscatekey\s*:\s*(\w*)\s*[\n$]', ssTiddler.text, re.I)
                     if match:
                         obfuscationkey = match.group(1)
-                        nss = u''
+                        nss = ''
                         for nsc in obfuscationkey:
                             if nss.find(nsc) == -1 and not nsc in ':\\\"n0':
                                 nss = nss + nsc
@@ -384,36 +384,37 @@ class Tiddler:
 
         # and then the body text
 
-        self.text = u''
+        self.text = ''
 
         for line in lines[1:]:
             #line.decode('utf-8')
             #print type(unicode(line))
             #self.text = self.translate_unicode(unicode(line))
+            #decoded = line.decode("utf-8")
             self.text += line + "\n"
 
         self.text = self.text.strip()
 
     def translate_unicode(self, to_translate):
         table = {
-            ord(u'’'): u'\'',
-            ord(u'‘'): u'\'',
-            ord(u'‛'): u'\'',
-            ord(u'’'): u'\'',
-            ord(u'“'): u'"',
-            ord(u'”'): u'"',
-            ord(u'‟'): u'"',
-            ord(u'„'): u',,',
-            ord(u'›'): u'>',
-            ord(u'‹'): u'<',
-            ord(u'‧'): u'.',
-            ord(u'․'): u'.',
-            ord(u'‥'): u'..',
-            ord(u'…'): u'...',
-            ord(u'ä'): u'ae',
-            ord(u'ö'): u'oe',
-            ord(u'ü'): u'ue',
-            ord(u'ß'): None,
+            ord('’'): '\'',
+            ord('‘'): '\'',
+            ord('‛'): '\'',
+            ord('’'): '\'',
+            ord('“'): '"',
+            ord('”'): '"',
+            ord('‟'): '"',
+            ord('„'): ',,',
+            ord('›'): '>',
+            ord('‹'): '<',
+            ord('‧'): '.',
+            ord('․'): '.',
+            ord('‥'): '..',
+            ord('…'): '...',
+            ord('ä'): 'ae',
+            ord('ö'): 'oe',
+            ord('ü'): 'ue',
+            ord('ß'): None,
         }
         #s = to_translate.decode('utf8')
         return to_translate.translate(table).encode('ascii', 'ignore')
@@ -462,7 +463,7 @@ class Tiddler:
         pos_re = re.compile(r'(?:data\-)?(?:twine\-)?position="([^"]*?)"')
         pos = pos_re.search(source)
         if (pos):
-            self.pos = map(int, pos.group(1).split(','))
+            self.pos = list(map(int, pos.group(1).split(',')))
 
         # body text
         self.text = ''
@@ -480,11 +481,11 @@ class Tiddler:
         output = ''
         title = self.title.replace('"','&quot;')
         if not obfuscation:
-            output = u'<div tiddler="' + title + '" tags="'
+            output = '<div tiddler="' + title + '" tags="'
             for tag in self.tags:
                 output += tag + ' '
         else:
-            output = u'<div tiddler="' + encode_obfuscate_swap(title, obfuscationkey) + '" tags="'
+            output = '<div tiddler="' + encode_obfuscate_swap(title, obfuscationkey) + '" tags="'
             for tag in self.tags:
                 output += encode_obfuscate_swap(tag + ' ', obfuscationkey)
         output = output.strip()
@@ -501,16 +502,16 @@ class Tiddler:
 
     def toTwee(self):
         """Returns a Twee representation of this tiddler."""
-        output = u':: ' + self.title
+        output = ':: ' + self.title
 
         if len(self.tags) > 0:
-            output += u' ['
+            output += ' ['
             for tag in self.tags:
                 output += tag + ' '
             output = output.strip()
-            output += u']'
+            output += ']'
 
-        output += u"\n" + self.text + u"\n\n\n"
+        output += "\n" + self.text + "\n\n\n"
         return output
 
     def toRss(self, author = 'twee'):
@@ -624,7 +625,7 @@ def encode_obfuscate_swap(text, obfuscationkey):
     for c in text:
         upper = c.isupper()
         p = obfuscationkey.find(c.lower())
-        if p <> -1:
+        if p != -1:
             if p % 2 == 0:
                 p1 = p + 1
                 if p1 >= len(obfuscationkey):

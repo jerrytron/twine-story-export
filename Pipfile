@@ -4,9 +4,11 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
+pyrss2gen = "*"
 pytz = "*"
+bitarray = "*"
 
 [dev-packages]
 
 [requires]
-python_version = "2.7"
+python_version = "3.9"

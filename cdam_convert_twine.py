@@ -11,9 +11,11 @@ import argparse
 import datetime
 import tiddlywiki as tiddly
 import cdam_gen_files as gen
+import importlib
+import bitarray
 
-reload(sys)
-sys.setdefaultencoding('utf8')
+importlib.reload(sys)
+# sys.setdefaultencoding('utf8')
 
 VERSION = "1.0"
 
@@ -44,7 +46,7 @@ PP = pprint.PrettyPrinter(indent = 4)
 
 kAppend = "<append>"
 kContinue = "<continue>"
-kContinueCopy = u'<continue>'
+kContinueCopy = '<continue>'
 kGotoTempTag = "-GOTO-"
 
 class CDAMParser(argparse.ArgumentParser):
@@ -71,7 +73,7 @@ def main():
    # To Make a Linear Story:
    # python ./cdam_convert_twine.py --title
 
-   parser = CDAMParser(version='1.0', description='CDAM Twine Source Code Converter')
+   parser = CDAMParser(description='CDAM Twine Source Code Converter')
    parser.add_argument('--dirname', default='NONE', action='store', help='Directory name for story on the file system.')
    parser.add_argument('--title', default='Untitled', action='store', help='The story title.')
    parser.add_argument('--subtitle', default='NONE', action='store', help='The story subtitle.')
@@ -104,7 +106,7 @@ def main():
    STORY_LANGUAGE = args.lang
    STORY_VERSION = args.ver
 
-   print "--- " + args.title + " ---"
+   print("--- " + args.title + " ---")
 
    if args.randseed:
       SEED = int(args.randseed)
@@ -125,7 +127,7 @@ def main():
    VERBOSE = args.verbose
 
    if VERBOSE:
-      print args.title
+      print(args.title)
 
    FLAGS['family_friendly'] = args.family
    FLAGS['variable_text'] = args.vartext
@@ -140,7 +142,7 @@ def main():
       return
 
    if args.dirname.upper() in PASSAGES:
-      print "[ERROR] Value of --dirname can't be the same as a passage title. Passage already exists named: " + args.dirname.upper()
+      print("[ERROR] Value of --dirname can't be the same as a passage title. Passage already exists named: " + args.dirname.upper())
       return
 
    SimplifyNaming()
@@ -223,14 +225,14 @@ def main():
             file = open(headerPath, 'r')
             book += file.read()
          except IOError:
-            print "[WARNING] No HTML header found at: " + headerPath
+            print("[WARNING] No HTML header found at: " + headerPath)
 
       book += "Title: " + STORY_TITLE + "\nSubtitle: " + STORY_SUBTITLE + "\nAuthor: " + STORY_AUTHOR
       book += "\nCredits: " + STORY_CREDITS + "\nContact: " + STORY_CONTACT + "\nLanguage: " + STORY_LANGUAGE + "\nVersion: " + STORY_VERSION + "\nSeed: " + str(SEED) + "\n\n\n"
 
       psgList = []
       newMap = {}
-      allKeys = PASSAGES.keys()
+      allKeys = list(PASSAGES.keys())
 
       key = "0"
       p = PASSAGES[key]
@@ -285,7 +287,7 @@ def main():
             book += file.read()
             #print book
          except IOError:
-            print "[WARNING] No HTML footer found at: " + footerPath
+            print("[WARNING] No HTML footer found at: " + footerPath)
 
 
       if os.path.exists(bookPath):
@@ -296,15 +298,15 @@ def main():
       if args.json == False:
          result = genFile.UpdateManifest(args.output, args.title, args.dirname, args.author, args.json)
          if result == False:
-            print "[ERROR] Failed to update manifest."
+            print("[ERROR] Failed to update manifest.")
       else:
          result = args.dirname
 
       result = genFile.BuildCDAMStory(result, STORY_MAP, PASSAGES, args.output, args.title, args.author, args.json)
       if result == False:
-         print "[ERROR] Failed to build story."
+         print("[ERROR] Failed to build story.")
 
-   print "--- Complete! ---\n"
+   print("--- Complete! ---\n")
    #print STORY_MAP
    #print PASSAGES
 
@@ -396,17 +398,17 @@ def twineBuild(storySource, path, storyDir, title, author):
 
    result = genFile.UpdateManifest(path, title, storyDir, author)
    if result == False:
-      print "[ERROR] Failed to update manifest."
+      print("[ERROR] Failed to update manifest.")
 
    result = genFile.BuildCDAMStory(storyDir, STORY_MAP, PASSAGES, path, title, author)
    if result == False:
-      print "[ERROR] Failed to build story."
+      print("[ERROR] Failed to build story.")
 
 def LoadSource(path):
    try:
       file = open(path, 'r')
    except IOError:
-      print "[ERROR] File not found: " + path
+      print("[ERROR] File not found: " + path)
       return False
 
    sourceStr = file.read()
@@ -429,9 +431,9 @@ def BuildCDAMStory(wiki):
    global STORY_AUTHOR
    global LINEAR
 
-   for key in wiki.tiddlers.keys():
+   for key in list(wiki.tiddlers.keys()):
       upKey = key.strip().upper()
-      if upKey not in wiki.tiddlers.keys():
+      if upKey not in list(wiki.tiddlers.keys()):
          wiki.tiddlers[upKey] = wiki.tiddlers[key]
          del wiki.tiddlers[key]
 
@@ -462,15 +464,15 @@ def BuildCDAMStory(wiki):
       else:
          if "ps" in passage:
             if VERBOSE:
-               print "[WARNING] Only set perfect score ('ps' or 'perfect') in the story passage titled 'Start'."
+               print("[WARNING] Only set perfect score ('ps' or 'perfect') in the story passage titled 'Start'.")
             del passage["ps"]
          if "cp" in passage:
             if VERBOSE:
-               print "[WARNING] Only set continue penalty ('cp' or 'penalty') in the story passage titled 'Start'."
+               print("[WARNING] Only set continue penalty ('cp' or 'penalty') in the story passage titled 'Start'.")
             del passage["cp"]
          if "sv" in passage:
             if VERBOSE:
-               print "[WARNING] Only set story version ('sv' or 'version') in the story passage titled 'Start'."
+               print("[WARNING] Only set story version ('sv' or 'version') in the story passage titled 'Start'.")
             del passage["sv"]
 
       passage["pv"] = VERSION
@@ -489,7 +491,7 @@ def BuildCDAMStory(wiki):
          if choicePairs == True:
             if "eq" not in passage:
                if VERBOSE:
-                  print "[WARNING] Ending quality 'eq' not set for " + key
+                  print("[WARNING] Ending quality 'eq' not set for " + key)
                # Default to average.
                passage["eq"] = 3
             else:
@@ -500,7 +502,7 @@ def BuildCDAMStory(wiki):
             if "cc" not in passage:
                passage["cc"] = True
          else:
-            print "[ERROR] Failed to parse for choices."
+            print("[ERROR] Failed to parse for choices.")
             return False
       if type(choicePairs) is list:
          nodes = []
@@ -509,7 +511,7 @@ def BuildCDAMStory(wiki):
             nodes.append(item['link'].strip().upper())
             choices.append(item['text'])
          if ValidateChoices(wiki.tiddlers, nodes) == False:
-            print "[ERROR] Failed to validate choices for node."
+            print("[ERROR] Failed to validate choices for node.")
             return False
          else:
             STORY_MAP[key] = nodes
@@ -519,7 +521,7 @@ def BuildCDAMStory(wiki):
          passage["cs"] = choicePairs
       #print "Validating passage for node " + key
       if ValidatePassage(passage) == False:
-         print "[ERROR] Failed to validate passage."
+         print("[ERROR] Failed to validate passage.")
          return False
       else:
          PASSAGES[key] = passage
@@ -589,52 +591,52 @@ def ParseOperation(opParts, iteration):
          rightPrintVal = tempValue
          #print str(rightValue)
 
-   data += chr(int(types, 2))
+   data += bitarray.bitarray(types)
 
    if command == "equal" or command == "==":
-      data += chr(0x01)
+      data += bytes.fromhex('01')
    elif command == "not_equal" or command == "!=":
-      data += chr(0x02)
+      data += bytes.fromhex('02')
    elif command == "greater" or command == ">":
-      data += chr(0x03)
+      data += bytes.fromhex('03')
    elif command == "less" or command == "<":
-      data += chr(0x04)
+      data += bytes.fromhex('04')
    elif command == "greater_equal" or command == ">=":
-      data += chr(0x05)
+      data += bytes.fromhex('05')
    elif command == "less_equal" or command == "<=":
-      data += chr(0x06)
+      data += bytes.fromhex('06')
    elif command == "and":
-      data += chr(0x07)
+      data += bytes.fromhex('07')
    elif command == "or":
-      data += chr(0x08)
+      data += bytes.fromhex('08')
    elif command == "xor":
-      data += chr(0x09)
+      data += bytes.fromhex('09')
    elif command == "nand":
-      data += chr(0x0A)
+      data += bytes.fromhex('0A')
    elif command == "nor":
-      data += chr(0x0B)
+      data += bytes.fromhex('0B')
    elif command == "xnor":
-      data += chr(0x0C)
+      data += bytes.fromhex('0C')
    elif command == "visible":
-      data += chr(0x0D)
+      data += bytes.fromhex('0D')
    elif command == "mod" or command == "%":
-      data += chr(0x0E)
+      data += bytes.fromhex('0E')
    elif command == "set" or command == "=":
-      data += chr(0x0F)
+      data += bytes.fromhex('0F')
    elif command == "plus" or command == "add" or command == "+":
-      data += chr(0x10)
+      data += bytes.fromhex('10')
    elif command == "minus" or command == "-":
-      data += chr(0x11)
+      data += bytes.fromhex('11')
    elif command == "multiply" or command == "mult" or command == "*":
-      data += chr(0x12)
+      data += bytes.fromhex('12')
    elif command == "divide" or command == "/":
-      data += chr(0x13)
+      data += bytes.fromhex('13')
    elif command == "rand" or command == "random":
-      data += chr(0x14)
+      data += bytes.fromhex('14')
    elif command == "dice" or command == "roll":
-      data += chr(0x15)
+      data += bytes.fromhex('15')
    elif command == "if":
-      data += chr(0x16)
+      data += bytes.fromhex('16')
 
    if rightType == "var":
       REPORT += rightName + "[" + str(VARIABLES[rightName]) + "]"
@@ -670,16 +672,16 @@ def ParseForAttributes(tags):
       #		VARIABLES[varSet[0]] = { "default" : varSet[1], "index" : len(VARIABLES) }
 
       if pair[0] == "vu":
-         print pair
+         print(pair)
          pair.pop(0)
          REPORT = ""
          data = bytearray()
          data = ParseOperation(pair, 0)
-         print ":".join("{:02x}".format(ord(chr(c))) for c in data)
+         print(":".join("{:02x}".format(ord(chr(c))) for c in data))
          OPERATION_TEST += data
          TOTAL_OPS += 1
 
-         print REPORT
+         print(REPORT)
          #updates = { "operation" : pair[1], "leftType" : pair[2], "leftValue" : pair[3], "rightType" : pair[4], "rightValue" : pair[5] }
          #if updates["leftType"] == "var":
          #	if updates["leftValue"] not in VARIABLES:
@@ -706,7 +708,7 @@ def ParseForAttributes(tags):
          #attributes["cvu"]["totalBytes"] = 0
          #components = { "valueOne" : pair[3], "operation" : pair[4], "valueTwoType" : pair[5], "valueTwo" : pair[6] }
          if opType == "vu": # Value updates
-            print "[VU] " + str(index) + " : " + REPORT
+            print("[VU] " + str(index) + " : " + REPORT)
             #if attributes["cvu"].setdefault(index, None) == None:
                #print "Fresh Choice: " + str(index)
                #attributes["cvu"][index] = { "data" : [], "totalBytes" : 0}
@@ -716,7 +718,7 @@ def ParseForAttributes(tags):
             attributes["cvu"][index]["totalBytes"] += len(data)
 
          elif opType == "dc": # Display conditionals
-            print "[DC] " + str(index) + " : " + REPORT
+            print("[DC] " + str(index) + " : " + REPORT)
             attributes["cdc"].setdefault(index, []).append(data)
 
       elif len(pair) == 2:
@@ -732,18 +734,18 @@ def ParseForAttributes(tags):
                attributes["cc"] = False
             else:
                if VERBOSE:
-                  print "[WARNING] Invalid boolean value provided for tag: " + pair[0]
+                  print("[WARNING] Invalid boolean value provided for tag: " + pair[0])
          elif pair[0] == "ps" or pair[0] == "perfect":
             attributes["ps"] = int(pair[1])
          elif pair[0] == "cp" or pair[0] == "penalty":
             attributes["cp"] = int(pair[1])
          elif pair[0] == "lc" or pair[0] == "color":
             if VERBOSE:
-               print "[WARNING] Color not currently supported."
+               print("[WARNING] Color not currently supported.")
             #attributes["lc"] = int(pair[1])
          elif pair[0] == "sn" or pair[0] == "sound":
             if VERBOSE:
-               print "[WARNING] Sound not currently supported."
+               print("[WARNING] Sound not currently supported.")
             #attributes["sn"] = int(pair[1])
          elif pair[0] == "sv" or pair[0] == "version":
                attributes["sv"] = pair[1]
@@ -787,13 +789,13 @@ def ParseForChoices(bodyText):
             else:
                text = "*"
          else:
-            print "[ERROR] Can only have a single auto-jump choice per passage."
+            print("[ERROR] Can only have a single auto-jump choice per passage.")
             return False
       elif text.lower() == kContinue:
          text = kContinueCopy # Set to <continue>
-      elif text.lower() == u'continue':
+      elif text.lower() == 'continue':
          text = kContinueCopy # Set to <continue>
-      elif text.lower() == u'continue...':
+      elif text.lower() == 'continue...':
          text = kContinueCopy # Set to <continue>
 
       choice['link'] = link.strip().upper()
@@ -837,7 +839,7 @@ def ValidateChoices(tiddlers, nodes):
    for node in nodes:
       if node not in tiddlers:
          #print tiddlers
-         print "[ERROR] Choice key found without matching passage: " + node
+         print("[ERROR] Choice key found without matching passage: " + node)
          return False
    return True
 
@@ -845,20 +847,20 @@ def ValidatePassage(passage):
    if "cc" in passage:
       if passage["cc"] == True and passage["en"] == False:
          if VERBOSE:
-            print "[WARNING] Continue flag useless if a passage isn't an ending. Setting False."
+            print("[WARNING] Continue flag useless if a passage isn't an ending. Setting False.")
          passage["cc"] = False
       elif passage["cc"] == True and passage["eq"] == 5:
          #print "[WARNING] Continue flag should be false if ending quality is 5."
          passage["cc"] = False
    if passage["en"] == True and "eq" not in passage:
-      print "[ERROR] Ending Quality (eq|quality) missing from ending passage."
+      print("[ERROR] Ending Quality (eq|quality) missing from ending passage.")
       return False
    if "eq" in passage:
       if passage["eq"] > 5 or passage["eq"] < 1:
-         print "[ERROR] Ending Quality (eq|quality) value outside range of 1-5."
+         print("[ERROR] Ending Quality (eq|quality) value outside range of 1-5.")
          return False
    if passage["pp"] > 255 or passage["pp"] < 0:
-      print "[ERROR] Points (pp|points) value outside range of 0-255."
+      print("[ERROR] Points (pp|points) value outside range of 0-255.")
       return False
 
 def SimplifyNaming():

@@ -1,11 +1,11 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "75e22feb02016d76203ba740e29b187f58ee15013f36fbb96e0ba96de05a2519"
+            "sha256": "d1cfc56c2844f3141cf5441f2729b6b53de56bfba1070f9e2c39d43ad7509eb6"
         },
         "pipfile-spec": 6,
         "requires": {
-            "python_version": "2.7"
+            "python_version": "3.9"
         },
         "sources": [
             {
@@ -16,6 +16,20 @@
         ]
     },
     "default": {
+        "bitarray": {
+            "hashes": [
+                "sha256:f19c62425576d3d1821ed711b94d1a4e5ede8f05ca121e99b6d978ed49c7a765"
+            ],
+            "index": "pypi",
+            "version": "==2.3.4"
+        },
+        "pyrss2gen": {
+            "hashes": [
+                "sha256:7960aed7e998d2482bf58716c316509786f596426f879b05f8d84e98b82c6ee7"
+            ],
+            "index": "pypi",
+            "version": "==1.1"
+        },
         "pytz": {
             "hashes": [
                 "sha256:3672058bc3453457b622aab7a1c3bfd5ab0bdae451512f6cf25f64ed37f5b87c",

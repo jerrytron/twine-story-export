@@ -45,16 +45,18 @@ Save it as a .txt file. This is the source file you feed the script.
 ## Generating a Linear Document (like a CYOA story)
 This can be useful to verify that your binary conversion will work, and is a fun way to share a functional interactive fiction story in a linear (and printable) document.
 
-__Note: All python scripts were written for Python 2. If that is not your system default, you must prepend commands with 'python2'.__
+__Note: You must have [pipenv](https://pipenv.pypa.io/en/latest/install/) installed to run this set of tools.__
+
+First, enter the project folder and run: `pipenv shell`
 
 ```
-python2 ./cdam_convert_twine.py --title "Another Day at the MIA" --author "Jerry Belich" --ver "1.0.0" --contact "@j3rrytron" --source ./StoryTests/another_day_at_the_mia_SRC.txt --output ./StoryTests --filename 'another_day_at_the_mia' --linear
+./cdam_convert_twine.py --title 'Another Day at the MIA' --subtitle '' --author "Jerry Belich" --pubdate "2013-08-31-0500" --credits "" --lang "eng" --ver "1.0.0" --contact "Follow me: @j3rrytron" --linear --output ./story_linear --source ./another_day_at_the_mia_SRC.txt
 ```
 
 ## Generating a Choosatron Binary
 Run all examples from a command line inside the folder containing the python scripts. _StoryTests_ is a folder one level deeper and the examples use that folder for test content.
 ```
-python2 ./cdam_convert_twine.py --title "Another Day at the MIA" --author "Jerry Belich" --ver "1.0.0" --contact "@j3rrytron" --source ./StoryTests/another_day_at_the_mia_SRC.txt --output ./StoryTests --filename 'another_day_at_the_mia' --binary
+./cdam_convert_twine.py --title 'Another Day at the MIA' --subtitle '' --author "Jerry Belich" --pubdate "2013-08-31-0500" --credits "" --lang "eng" --ver "1.0.0" --contact "Follow me: @j3rrytron" --binary --output ./story_bins --source ./another_day_at_the_mia_SRC.txt
 ```
 
 **_If you have a title, name, or text that requires either single or double quotes, simply use the opposite quotes to contain the entire string._**
@@ -67,7 +69,10 @@ Option | Default | Max Length | Description
 --title | "Untitled" | 64 | Title of your story.
 --subtitle | "" | 32 | Addition to the title on a new line.
 --author | "Anonymous" | 64 | The name of the writer.
+--pubdate | 'YYYY-MM-DD-zzzz' | n/a | The '-zzzz' can start with + or - and then four digits zzzz, for timezone adjustment hours.
 --credits | "" | 80 | Printed after play, place for additional credits or thanks.
+--lang | "eng" | 3 | Three character language code (eng = american english).
+--ver | "1.0.0" | 255.255.255 | A set of three integers for a story version number.
 --contact | "Follow creator @j3rrytron online!" | 128 | Printed after play, a place to put contact info like a url or twitter.
 
 Option | Description | Dependency

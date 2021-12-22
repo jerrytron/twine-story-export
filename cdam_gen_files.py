@@ -18,6 +18,7 @@ import shutil
 import string
 import uuid
 import hashlib
+import bitarray
 #import regex as re
 #import unicodedata
 #from unidecode import unidecode
@@ -100,14 +101,14 @@ def main():
    args = parser.parse_args()
 
    if args.update and args.force:
-      print "Conflicting flags set. Remove either update or force flag."
+      print("Conflicting flags set. Remove either update or force flag.")
       return
 
    gen = CDAMGenFiles()
 
    jsonMap = gen.LoadMapJson(args.map)
    if jsonMap == False:
-      print "Exiting..."
+      print("Exiting...")
       return
 
    # If you want the full path...
@@ -122,7 +123,7 @@ class CDAMGenFiles:
       try:
          file = open(path, 'r')
       except IOError:
-         print "[ERROR] File not found: " + path
+         print("[ERROR] File not found: " + path)
          return False
 
       jsonStr = file.read()
@@ -134,7 +135,7 @@ class CDAMGenFiles:
       if json == True:
          storyDir = path
          mapPath = os.path.join(path, title + ".TXT")
-         print "Creating story map file..."
+         print("Creating story map file...")
          result = self.CreateMapFile(nodeMap, mapPath)
          if result == False:
             return False
@@ -159,14 +160,14 @@ class CDAMGenFiles:
          authorPath = os.path.join(storyDir, "A")
          self.WriteToFile(authorPath, author)
 
-      print "Creating passage files..."
+      print("Creating passage files...")
       for key in passages:
          filepath = os.path.join(storyDir, key.upper())
          result = self.CreatePassageFile(key, filepath, False, True, nodeMap, passages[key], json)
          if result == False:
             return False
 
-      print "Complete"
+      print("Complete")
       return True
 
    def UpdateManifest(self, path, title, dirname, author, json=False):
@@ -178,7 +179,7 @@ class CDAMGenFiles:
 
       try:
          os.makedirs(os.path.join(path, "_"))
-      except OSError, e:
+      except OSError as e:
          if not os.path.exists(os.path.join(path, "_")):
             return False
       try:
@@ -187,17 +188,17 @@ class CDAMGenFiles:
          needManifest = True
          storyId = 1
          total = 1
-         print "Manifest files not defined, generating..."
+         print("Manifest files not defined, generating...")
 
       if needManifest:
-         print "Creating story manifest..."
+         print("Creating story manifest...")
          if dirname != "NONE":
-            print "[WARNING] Can't update story number when no manifest exists."
+            print("[WARNING] Can't update story number when no manifest exists.")
          storyTitle = str(storyId) + "." + title
          storyTitle = self.WrapString(storyTitle, 32)
          self.WriteToFile(storyListPath, storyTitle + "\n")
       else:
-         print "Updating story manifest..."
+         print("Updating story manifest...")
          found = False
          nextStory = False
          storyList = ""
@@ -208,7 +209,7 @@ class CDAMGenFiles:
             if not found:
                if line[0] == dirname:
                   if line[1] == '.':
-                     print "Updating story number " + dirname
+                     print("Updating story number " + dirname)
                      storyTitle = dirname + "." + title
                      #storyTitle = self.WrapString(storyTitle, 32)
                      storyList += storyTitle + "\n"
@@ -229,7 +230,7 @@ class CDAMGenFiles:
          file.close();
          if not found:
             if dirname != "NONE":
-               print "[WARNING] Unable to find story number " + dirname + " to update. Adding new story."
+               print("[WARNING] Unable to find story number " + dirname + " to update. Adding new story.")
             total += 1
             storyId = total
             storyTitle = str(storyId) + "." + title
@@ -245,7 +246,7 @@ class CDAMGenFiles:
       return str(storyId)
 
    def GenerateBody(self, nodeMap, passages, variables):
-      print "Generating Story Body..."
+      print("Generating Story Body...")
       body = bytearray()
 
       binPassages = {}
@@ -253,16 +254,16 @@ class CDAMGenFiles:
 
       # Number of 8 bit integer variables in story.
       #small = len(smallVars)
-      #body += chr(small)
+      #body += bytes(small)
 
       # Setup variable default values.
       #for smallVar in smallVars:
          #print "Small Var: " + smallVar + ", Default Value: " + str(smallVars[smallVar]['default'])
-      #	body += chr(int(smallVars[smallVar]['default']))
+      #	body += bytes(int(smallVars[smallVar]['default']))
 
       # Number of 16 bit integer variables in story.
       #big = len(bigVars)
-      #body += chr(big)
+      #body += bytes(big)
 
       #for bigVar in bigVars:
          #print "Big Var: " + bigVar + ", Default Value: " + str(bigVars[bigVar]['default'])
@@ -311,9 +312,8 @@ class CDAMGenFiles:
          #body += bytearray(struct.pack('<L', len(binPsg['compressed'])))
          # Add passage data.
          body += bytearray(binPsg['compressed'])
-
-         body += chr(0x03)
-
+         # End of passage byte.
+         body += bytes.fromhex('03')
 
       #self.BuildDictionary(nodeMap, passages)
       return body
@@ -337,14 +337,14 @@ class CDAMGenFiles:
       pressToContinue = False
 
       if 'cs' in passage and len(passage['cs']) == 1 and passage['cs'][0]['text'] == "*":
-         print "Passage Append: " + key
+         print("Passage Append: " + key)
          psgAttribute += "1"
          append = True
       else:
          psgAttribute += "0"
 
-      if 'cs' in passage and len(passage['cs']) == 1 and passage['cs'][0]['text'] == u'<continue>':
-         print "Passage Continue: " + key
+      if 'cs' in passage and len(passage['cs']) == 1 and passage['cs'][0]['text'] == '<continue>':
+         print("Passage Continue: " + key)
          psgAttribute += "1"
          pressToContinue = True
       else:
@@ -352,10 +352,11 @@ class CDAMGenFiles:
 
       # Add attribute padding.
       psgAttribute += "000000"
-      data += chr(int(psgAttribute, 2))
+      data += bitarray.bitarray(psgAttribute)
+      #data += int(psgAttribute).to_bytes(2, byteorder='big')
 
       # Add # of value updates for passage - 1 byte
-      data += chr(len(valueUpdates))
+      data += len(valueUpdates).to_bytes(1, byteorder='big')
       for update in valueUpdates:
          data += update
          #types = ""
@@ -385,7 +386,7 @@ class CDAMGenFiles:
          #	types += "0100"
          #elif update["operation"] == "%":
          #	types += "0101"
-         #data += chr(int(types, 2))
+         #data += bytes(int(types, 2))
 
          # Add Value One
          #data += bytearray(struct.pack('<H', int(valOne)))
@@ -403,7 +404,7 @@ class CDAMGenFiles:
          # This is an ending
 
          # Set Choice Count byte to 0
-         data += chr(0x00)
+         data += bytes.fromhex('00')
 
          if passage['eq'] == 1:
             attribute += "0000001"
@@ -418,12 +419,13 @@ class CDAMGenFiles:
          elif passage['eq'] == 0:
             attribute += "0000000"
          info['offsets'] = 'end'
-         data += chr(int(attribute, 2))
+         #data += bytes(int(attribute, 2))
+         data += bitarray.bitarray(attribute)
       else:
          #print passage
          # Add # of choices - 1 byte
          choices = passage["cs"]
-         data += chr(len(choices))
+         data += len(choices).to_bytes(1, byteorder='big')
 
          #append = False
          info['offsets'] = []
@@ -441,14 +443,14 @@ class CDAMGenFiles:
          for choice in choices:
             try:
                # Add the attribute byte - needed every choice.
-               data += chr(int(attribute, 2))
+               data += bitarray.bitarray(attribute)
 
                conditions = passage["cdc"][index]
 
                # print "Condition Count: " + str(len(conditions))
 
                # Number of conditions
-               data += chr(len(conditions))
+               data += len(conditions).to_bytes(1, byteorder='big')
 
                for condition in conditions:
                   data += condition
@@ -480,7 +482,7 @@ class CDAMGenFiles:
                   #	types += "0100"
                   #elif condition["operation"] == "%":
                   #	types += "0101"
-                  #data += chr(int(types, 2))
+                  #data += bytes(int(types, 2))
 
                   # Add Value One
                   #data += bytearray(struct.pack('<H', valOne))
@@ -490,7 +492,7 @@ class CDAMGenFiles:
             except:
                # No conditions.
                #print "No Conditions"
-               data += chr(0x00)
+               data += bytes.fromhex('00')
 
             try:
                length = passage["cvu"][index]["totalBytes"]
@@ -499,34 +501,34 @@ class CDAMGenFiles:
 
                updates = passage["cvu"][index]["data"]
                # print "Update Count: " + str(len(updates))
-               data += chr(len(updates))
+               data += len(updates).to_bytes(1, byteorder='big')
 
                if updates != 0:
                # Number of updates
                   for update in updates:
                      data += update
                else:
-                  data += chr(0x00)
+                  data += bytes.fromhex('00')
             except:
                # No value updates.
-               data += chr(0x00) # Add two bytes for update length
-               data += chr(0x00) # ""
-               data += chr(0x00) # Add one byte for update count
+               data += bytes.fromhex('00') # Add two bytes for update length
+               data += bytes.fromhex('00') # ""
+               data += bytes.fromhex('00') # Add one byte for update count
 
             # Choice text length.
             if append:
-               data += chr(0x00)
+               data += bytes.fromhex('00')
             elif pressToContinue:
-               data += chr(0x00)
+               data += bytes.fromhex('00')
             else:
                #print "Single Choice Text Length: " + str(len(choice))
                data += bytearray(struct.pack('<H', len(choice["text"])))
 
             # Choice text.
             if append:
-               data += chr(0x00)
+               data += bytes.fromhex('00')
             elif pressToContinue:
-               data += chr(0x00)
+               data += bytes.fromhex('00')
             else:
                data += bytearray(self.translate_unicode(choice["text"]))
 
@@ -545,24 +547,24 @@ class CDAMGenFiles:
 
 
    def ReplaceWords(self):
-      subChar = chr(0x1A)
+      subChar = bytes.fromhex('1A')
 
       for index in range(0, len(PASSAGES) + 1):
          key = str(index)
          p = PASSAGES[key]
          m = STORY_MAP[key]
-         print p['pt']
+         print(p['pt'])
          text = ''.join(ch for ch in test if ch not in exclude)
          words += text.split()
 
          if p['en'] == True:
-            print "Ending: " + str(p['en'])
+            print("Ending: " + str(p['en']))
          else:
             if len(p['cs']) == 1:
-               print "Auto forward"
+               print("Auto forward")
             else:
                for index in range(0, len(p['cs'])):
-                  print " - " + p['cs'][index]
+                  print(" - " + p['cs'][index])
 
 
    def BuildDictionary(self, nodeMap, passages):
@@ -585,7 +587,7 @@ class CDAMGenFiles:
 
          if p['en'] == False:
             if len(p['cs']) == 1 and p['cs'][0] == "*":
-               print "Auto forward from " + key + "..."
+               print("Auto forward from " + key + "...")
             else:
                for index in range(0, len(p['cs'])):
                   text = ''.join(ch for ch in p['cs'][index] if ch not in exclude)
@@ -619,59 +621,59 @@ class CDAMGenFiles:
       wordArray = bytearray()
       for word in WORD_ORDER:
          wordArray += bytearray(word)
-         wordArray += chr(0x00)
+         wordArray += bytes.fromhex('00')
 
       # Calculate size, see if all words will fit in 2 byte offsets.
       if len(wordArray) > 65535:
-         print "[WARN] This story requires 3 byte offset addressing to hold all words."
+         print("[WARN] This story requires 3 byte offset addressing to hold all words.")
 
       # Calculate space savings.
       totalSavings = 0
       for word in WORD_ORDER:
          savings = WORD_FREQUENCY[word] * (CHAR_BYTE_SIZE * len(word) - OFFSET_ADDR_SIZE) - CHAR_BYTE_SIZE * len(word) - 1
          #print word + " used " + str(WORD_FREQUENCY[word]) + " times, saving " + str(savings) + " bytes."
-         print word
+         print(word)
          totalSavings += savings
-         print totalSavings
-      print "Number of Words:     " + str(len(WORD_MAP))
-      print "Dictionary Size:     " + str(len(wordArray))
-      print "Char Byte Size:      " + str(CHAR_BYTE_SIZE)
-      print "Offset Address Size: " + str(OFFSET_ADDR_SIZE)
-      print "Total Byte Savings:  " + str(totalSavings)
+         print(totalSavings)
+      print("Number of Words:     " + str(len(WORD_MAP)))
+      print("Dictionary Size:     " + str(len(wordArray)))
+      print("Char Byte Size:      " + str(CHAR_BYTE_SIZE))
+      print("Offset Address Size: " + str(OFFSET_ADDR_SIZE))
+      print("Total Byte Savings:  " + str(totalSavings))
 
 
    def GenerateHeader(self, language, title, subtitle, author, pubdate, credits, contact, binVer, storyVer, flags, storySize, variableCount):
-      print "Generating Story Header..."
+      print("Generating Story Header...")
       # Verify data first.
 
       # Language Max - 4 bytes
       if len(language) > LANG_MAX:
-         print "Language longer than " + LANG_MAX + " bytes: " + language
+         print("Language longer than " + LANG_MAX + " bytes: " + language)
          return False
 
       # Title Max - 64 bytes
       if len(title) > TITLE_MAX:
-         print "Title longer than " + TITLE_MAX + " bytes: " + title
+         print("Title longer than " + TITLE_MAX + " bytes: " + title)
          return False
 
       # Subtitle Max - 32 bytes
       if len(subtitle) > SUBTITLE_MAX:
-         print "Subtitle longer than " + SUBTITLE_MAX + " bytes: " + subtitle
+         print("Subtitle longer than " + SUBTITLE_MAX + " bytes: " + subtitle)
          return False
 
       # Author Max - 48 bytes
       if len(author) > AUTHOR_MAX:
-         print "Author longer than " + AUTHOR_MAX + " bytes: " + author
+         print("Author longer than " + AUTHOR_MAX + " bytes: " + author)
          return False
 
       # Credits Max - 80 bytes
       if len(credits) > CREDITS_MAX:
-         print "Credits longer than " + CREDITS_MAX + " bytes: " + credits
+         print("Credits longer than " + CREDITS_MAX + " bytes: " + credits)
          return False
 
       # Contact Max - 128 bytes
       if len(contact) > CONTACT_MAX:
-         print "Contact longer than " + CONTACT_MAX + " bytes: " + contact
+         print("Contact longer than " + CONTACT_MAX + " bytes: " + contact)
          return False
 
       data = bytearray()
@@ -681,24 +683,24 @@ class CDAMGenFiles:
       headerSize = 414 # with string UUID
 
       # Add the start of header - 1 byte
-      data += chr(0x01)
+      data += bytes.fromhex('01')
 
       # Binary Version - 3 bytes
       parts = [int(x) for x in binVer.split('.')]
       if len(parts) != 3:
-         print "Binary version invalid: " + binVer
+         print("Binary version invalid: " + binVer)
          return False
-      data += chr(parts[0])
-      data += chr(parts[1])
-      data += chr(parts[2])
+      data += parts[0].to_bytes(1, byteorder='big')
+      data += parts[1].to_bytes(1, byteorder='big')
+      data += parts[2].to_bytes(1, byteorder='big')
 
       # Generate the UUID
       m = hashlib.md5()
-      m.update(author + title)
+      m.update((author + title).encode('utf-8'))
       storyUuid = uuid.UUID(m.hexdigest())
-      print  "IFID: " + str(storyUuid)
+      print("IFID: " + str(storyUuid))
       #data += storyUuid.bytes_le # little endian hex
-      data += str(storyUuid)
+      data += bytes(str(storyUuid).encode('utf-8'))
 
       # Flags - 4 bytes
       flagOne = ""
@@ -736,10 +738,10 @@ class CDAMGenFiles:
       
       # Add attribute padding.
       flagOne += "00"
-      data += chr(int(flagOne, 2))
+      data += bitarray.bitarray(flagOne)
 
       # flagOne = int('00000000', 2)
-      # data += chr(flagOne)
+      # data += bytes(flagOne)
 
       # Retry - Monospace - Multiplayer - Hide Used - Rsvd x 4
       # 0x80    0x40        0x20          0x10
@@ -756,70 +758,73 @@ class CDAMGenFiles:
 
       # Add attribute padding.
       flagTwo += "000000"
-      data += chr(int(flagTwo, 2))
+      #data += bytes(int(flagTwo, 2))
+      data += bitarray.bitarray(flagTwo)
 
       # flagTwo = int('10000000', 2)
-      # data += chr(flagTwo)
+      # data += bytes(flagTwo)
 
       # Rsvd x 8
       # 0x80 - 0x00
-      flagThree = int('00000000', 2)
-      data += chr(flagThree)
+      #flagThree = int('00000000', 2)
+      #data += bytes(flagThree)
+      data += bitarray.bitarray('00000000')
+      
       # Rsvd x 8
       # 0x80 - 0x00
-      flagFour = int('00000000', 2)
-      data += chr(flagFour)
+      #flagFour = int('00000000', 2)
+      #data += bytes(flagFour)
+      data += bitarray.bitarray('00000000')
 
       # Story byte size - 4 bytes - Little Endian - Unsigned Long
       data += bytearray(struct.pack('<L', storySize + headerSize))
 
-      print "Total Binary Size: " + str(storySize + headerSize)
+      print("Total Binary Size: " + str(storySize + headerSize))
 
       # Story Version - 3 bytes
       parts = [int(x) for x in storyVer.split('.')]
       if len(parts) != 3:
-         print "Story version invalid: " + storyVer
+         print("Story version invalid: " + storyVer)
          return False
-      data += chr(parts[0])
-      data += chr(parts[1])
-      data += chr(parts[2])
+      data += parts[0].to_bytes(1, 'big')
+      data += parts[1].to_bytes(1, 'big')
+      data += parts[2].to_bytes(1, 'big')
 
       # Currently unused - 1 byte
       rsvd = 0
-      data += chr(rsvd)
+      data += rsvd.to_bytes(1, 'big')
 
       # Language Code - 4 bytes
-      langData = bytearray(array.array('b', '\0') * LANG_MAX)
-      langData[0:len(language)] = bytearray(language)[:]
+      langData = bytearray(b'\0' * LANG_MAX)
+      langData[0:len(language)] = bytearray(language.encode())[:]
       data += langData
 
       # Title - 64 bytes
-      titleData = bytearray(array.array('b', '\0') * TITLE_MAX)
-      titleData[0:len(title)] = bytearray(title)[:]
+      titleData = bytearray(b'\0' * TITLE_MAX)
+      titleData[0:len(title)] = bytearray(title.encode())[:]
       data += titleData
 
       # Subtitle - 32 bytes
-      subtitleData = bytearray(array.array('b', '\0') * SUBTITLE_MAX)
-      subtitleData[0:len(subtitle)] = bytearray(subtitle)[:]
+      subtitleData = bytearray(b'\0' * SUBTITLE_MAX)
+      subtitleData[0:len(subtitle)] = bytearray(subtitle.encode())[:]
       data += subtitleData
 
       # Author - 48 bytes
-      authorData = bytearray(array.array('b', '\0') * AUTHOR_MAX)
-      authorData[0:len(author)] = bytearray(author)[:]
+      authorData = bytearray(b'\0' * AUTHOR_MAX)
+      authorData[0:len(author)] = bytearray(author.encode())[:]
       data += authorData
 
       # Credits - 80 bytes
-      creditsData = bytearray(array.array('b', '\0') * CREDITS_MAX)
-      creditsData[0:len(credits)] = bytearray(credits)[:]
+      creditsData = bytearray(b'\0' * CREDITS_MAX)
+      creditsData[0:len(credits)] = bytearray(credits.encode())[:]
       data += creditsData
 
       # Contact - 128 bytes
-      contactData = bytearray(array.array('b', '\0') * CONTACT_MAX)
-      contactData[0:len(contact)] = bytearray(contact)[:]
+      contactData = bytearray(b'\0' * CONTACT_MAX)
+      contactData[0:len(contact)] = bytearray(contact.encode())[:]
       data += contactData
 
       # Published Datetime - 4 bytes - Little Endian - Unsigned Long
-      
       
       # Split the utc offset part
       timestamp = 0
@@ -839,12 +844,13 @@ class CDAMGenFiles:
          #timestamp = calendar.timegm(time.gmtime())
 
       # Pack the pubdate timestamp into the data blob.
-      data += bytearray(struct.pack('<L', timestamp))
+      data += bytearray(struct.pack('<L', int(timestamp)))
+
       # Variable Count byte size - 2 bytes - Little Endian - Unsigned Short
       data += bytearray(struct.pack('<H', variableCount))
 
       if len(data) != headerSize:
-         print "Story Header wrong size: " + str(len(data))
+         print("Story Header wrong size: " + str(len(data)))
          return False
 
       return data
@@ -892,7 +898,7 @@ class CDAMGenFiles:
       try:
          file = open(path, 'w')
       except IOError:
-         print "[ERROR] Failed to open file: " + path
+         print("[ERROR] Failed to open file: " + path)
          return False
 
       #jsonPsg = json.dumps(passage, sort_keys=True, indent=4)
@@ -917,25 +923,25 @@ class CDAMGenFiles:
 
    def translate_unicode(self, to_translate):
       table = {
-         ord(u'’'): u'\'',
-         ord(u'‘'): u'\'',
-         ord(u'‛'): u'\'',
-         ord(u'’'): u'\'',
-         ord(u'“'): u'"',
-         ord(u'”'): u'"',
-         ord(u'‟'): u'"',
-         ord(u'„'): u',,',
-         ord(u'›'): u'>',
-         ord(u'‹'): u'<',
-         ord(u'‧'): u'.',
-         ord(u'․'): u'.',
-         ord(u'‥'): u'..',
-         ord(u'…'): u'...',
-         ord(u'ä'): u'ae',
-         ord(u'ö'): u'oe',
-         ord(u'ü'): u'ue',
-         ord(u'ß'): None,
-         ord(u'—'): u'-',
+         ord('’'): '\'',
+         ord('‘'): '\'',
+         ord('‛'): '\'',
+         ord('’'): '\'',
+         ord('“'): '"',
+         ord('”'): '"',
+         ord('‟'): '"',
+         ord('„'): ',,',
+         ord('›'): '>',
+         ord('‹'): '<',
+         ord('‧'): '.',
+         ord('․'): '.',
+         ord('‥'): '..',
+         ord('…'): '...',
+         ord('ä'): 'ae',
+         ord('ö'): 'oe',
+         ord('ü'): 'ue',
+         ord('ß'): None,
+         ord('—'): '-',
       }
       #s = to_translate.decode('utf8')
       return to_translate.translate(table).encode('ascii', 'ignore')
@@ -944,7 +950,7 @@ class CDAMGenFiles:
       if json == False:
          try:
             os.makedirs(path)
-         except OSError, e:
+         except OSError as e:
             if not os.path.exists(path):
                raise
          pointsPath = os.path.join(path, "P")
@@ -955,8 +961,8 @@ class CDAMGenFiles:
 
          try:
             self.WriteToFile(textPath, passage["pt"])
-         except IOError, e:
-            print "Error exporting passage text for passage: " + passage
+         except IOError as e:
+            print("Error exporting passage text for passage: " + passage)
 
          endingPath = os.path.join(path, "E");
          if passage["en"]:
@@ -987,7 +993,7 @@ class CDAMGenFiles:
 
             i = 0
             for node in nodeMap[nodeValue]:
-               print "Choice: " + passage["cs"][i]
+               print("Choice: " + passage["cs"][i])
                if passage["cs"][i] != "*":
                   choiceStr = str(i+1) + "." + self.translate_unicode(passage["cs"][i])
                else:
@@ -1012,24 +1018,24 @@ class CDAMGenFiles:
    def WriteToFile(self, path, data):
       #path = path + ".txt"
       try:
-         file = open(path, 'w')
+         file = open(path, 'wb')
       except IOError:
-         print "[ERROR] Failed to write file: " + path
+         print("[ERROR] Failed to write file: " + path)
          file.close()
          return False
 
       #file.write(data)
       try:
          file.write(data)
-      except UnicodeEncodeError, e:
-         print "[ERROR] Failed to write character ("+ e.object[e.start:e.end] + ") of: " + e.object
+      except UnicodeEncodeError as e:
+         print("[ERROR] Failed to write character ("+ e.object[e.start:e.end] + ") of: " + e.object)
       file.close()
 
    def LoadPassageJson(self, path):
       try:
          file = open(path, 'r')
       except IOError:
-         print "[ERROR] Unable to open passage: " + path
+         print("[ERROR] Unable to open passage: " + path)
          file.close()
          return False
 
